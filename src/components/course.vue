@@ -16,10 +16,11 @@ const user=useUserStore()
 const array=ref([])
 onMounted(()=>{
    getCourseByStudent().then(res=>{
-    res.courses.forEach(item=>{
+    if(res.courses){
+          res.courses.forEach(item=>{
         array.value.push(item.courseName)
     })
-    console.log(array.value)
+    }
    })
  
 })

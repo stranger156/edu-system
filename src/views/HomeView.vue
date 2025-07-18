@@ -44,17 +44,30 @@
 <script setup>
  import { RouterView } from 'vue-router';
 import router from '@/router';
+import { useRoute} from 'vue-router';
 import  { onMounted, ref } from 'vue';
 import { getSingleUserInfo } from '@/utils/api';
-const title=ref('首页')
+const title=ref('')
 const name=ref('')
+const route = useRoute();
 const toLogin=()=>{
   router.push('/')
 }
+const state=ref(0)
 onMounted(()=>{
+ if(route.name==='main'){
+title.value='首页'
+ }
+  if(route.name==='class'){
+title.value='课程'
+ } 
+ if(route.name==='message'){
+title.value='通知'
+ }
   getSingleUserInfo().then(res=>{
     name.value=res.data.userName
   })
+  state.value=localStorage.getItem('root')
 })
 </script>
 <style scoped>

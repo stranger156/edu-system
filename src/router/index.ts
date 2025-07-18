@@ -4,9 +4,9 @@ import Main from '@/views/Main.vue'
 import Class from '@/views/Class.vue'
 import Message from '@/views/Message.vue'
 import DetailView from '@/views/DetailView.vue'
-import Task from '@/views/task.vue'
-import Chapter from '@/views/chapter.vue'
-import Data from '@/views/data.vue'
+import Task from '@/views/Task.vue'
+import Chapter from '@/views/Chapter.vue'
+import Data from '@/views/Data.vue'
 
 
 const router = createRouter({
@@ -29,10 +29,12 @@ const router = createRouter({
       },
         {
         path: '/Class', // 完整路径：/user/profile
+        name:'class',
         component: Class
       },
         {
         path: '/Message', // 完整路径：/user/profile
+        name:'message',
         component: Message
       }
     ]
