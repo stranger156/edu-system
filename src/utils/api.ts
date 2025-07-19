@@ -177,3 +177,16 @@ export const createCourseWithTeacher=(params:any)=>{
         data:formData
     })
 }
+
+// 老师发布通知
+export const publishNotice=(params:any)=>{
+  const formData=new FormData()
+     formData.append('courseID', params.courseId)
+     formData.append('title', params.title)
+     formData.append('content', params.content)
+      return $http({
+        url:'/publishNotice',
+        method:"post",
+        data:formData
+    })
+}
