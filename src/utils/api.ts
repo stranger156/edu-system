@@ -61,7 +61,13 @@ export const getCourseByStudent=()=>{
     })
 }
 
-
+//学生查看所有通知
+export const getAllNoticesByStudent=()=>{
+     return $http({
+        url:'/getAllNoticesByStudent',
+        method:"get"
+    })
+}
 
 
 
