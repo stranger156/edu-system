@@ -3,7 +3,9 @@
 </template>
 
 <script lang="ts" setup >
-defineProps({
+import { onMounted } from 'vue';
+
+const props = defineProps({
   courseId: {
     type: [String, Number],
     required: true
@@ -12,6 +14,9 @@ defineProps({
     type: [String, Number],
     required: true
   }
+})
+onMounted(()=>{
+    console.log(props.courseId)
 })
 </script>
 
