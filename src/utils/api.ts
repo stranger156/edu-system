@@ -190,3 +190,14 @@ export const publishNotice=(params:any)=>{
         data:formData
     })
 }
+
+// 获取通知详情
+export const getNoticeDetailByNoticeID=(params:any)=>{
+  const formData=new FormData()
+     formData.append('noticeID', params)
+      return $http({
+        url:'/getNoticeDetailByNoticeID',
+        method:"post",
+        data:formData
+    })
+}
