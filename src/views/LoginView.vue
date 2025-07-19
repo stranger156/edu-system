@@ -78,9 +78,8 @@ const log=()=>{
 if(iflogin.value){
 login(loginForm.value).then(res=>{
 		if(res.code===200){
-          user.setLoginInfo(res.token)
+          user.setLoginInfo(res.token,loginForm.value.root)
            router.push('home')
-
         }
 	})
 }else{

@@ -4,16 +4,16 @@ export const useUserStore =defineStore('user',{
         return{           
             user:{ 
                 token:localStorage.getItem('token')||'',
-       
+                root:localStorage.getItem('root')||''
             }
          }
      },
      actions:{
-        setLoginInfo(token:any){
+        setLoginInfo(token:any,root:any){
             localStorage.setItem("token",token);
-           
             this.user.token=token;
-     
+             localStorage.setItem("root",root);
+            this.user.root=root;
         }
      }
 })
