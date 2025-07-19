@@ -1,5 +1,5 @@
 <template>
-通知详情{{ userId }}
+
 </template>
 
 <script lang="ts" setup >
