@@ -1,5 +1,5 @@
 <template>
-
+{{ userId }}
 </template>
 
 <script lang="ts" setup >
