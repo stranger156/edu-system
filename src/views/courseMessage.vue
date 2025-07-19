@@ -2,7 +2,7 @@
   <div class="notification-list">
     <div v-if="!notices || notices.length === 0">暂无通知</div>
     <button class='publishButton' v-if="state=='1'" @click="showPublishDialog = true">发布通知</button>
-    <div v-for="(item, index) in notices" :key="index" class="notification-item" @click="viewDetails(item)">
+    <div v-for="(item, index) in notices" :key="index" class="notification-item" @click="viewDetails(index)">
       <img src="../image//notice.png" alt="通知图标" class="notification-icon" />
       <div class="notification-content">
         <div class="notification-title">{{ item.title }}</div>
@@ -37,7 +37,8 @@
 import { getLectureNoticeByStudent, getLectureNoticeByTeacher, publishNotice } from '@/utils/api';
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-
+import { useRouter } from 'vue-router';
+const router=useRouter()
 const props = defineProps({
   courseId: {
     type: [String, Number],
@@ -67,6 +68,7 @@ const lecture = {
 // 查看详情函数
 const viewDetails = (notice) => {
   console.log('跳转到详情页面，通知内容:', notice);
+   router.push({ name: 'detail', params: { id:notice } });
 };
 
 // 发布通知
