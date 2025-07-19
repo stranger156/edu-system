@@ -38,29 +38,34 @@
  <div v-if="state==='1'">
     <header> 
         <button :class="model===true?'select active':'select'" @click="model=true">我的课堂</button>
-        <button :class="model===false?'select active':'select'" @click="model=false" class="select">选课</button>
+        <button :class="model===false?'select active':'select'" @click="model=false" class="select">添加授课</button>
         <hr>
     </header>
-    <div style="margin-top: 50px;">
-        <!-- 我学的课 -->
-        <div  v-show="model" v-for="item in array" class="block" style="display: flex;">
-            <img src="../image/class.jpg" @click="toMore(item.courseID,item.teacherID)" alt="" style=" cursor: pointer;">
+      <!-- 我上的课 -->
+    <div style="margin-top: 50px;" v-show="model">
+          <div v-show="!array.length" style="margin-left: 40%;font-size: 30px;">尚未加入课堂</div>
+        <div   v-for="item in array" class="block" style="display: flex;">
+            <img src="../image/class.jpg" @click="toMore(item.courseID,teacherID)" alt="" style=" cursor: pointer;">
             <div >
- <h1 class="name" @click="toMore(item.courseID,item.teacherID)">{{ item.courseName }}</h1>
+ <h1 class="name" @click="toMore(item.courseID,teacherID)">{{ item.courseName }}</h1>
 <div style="margin-top: 20px;"> 创建时间:{{ item. createTime}}</div>
 <div style="margin-top: 10px;">结束时间：{{ item.endTime }}</div>
             </div> 
-            <div class="learn" @click="toMore(item.courseID,item.teacherID)">查看详情</div>
+            <div class="learn" @click="toMore(item.courseID,teacherID)">查看详情</div>
         </div>
+           </div> 
         <!-- 选课 -->
-           <!-- <div @click="toMore(item.courseID,item.Tno)" v-show="!model" v-for="item in lecture" class="block" style="display: flex;">
+        <div style="margin-top: 50px;" v-show="!model">
+             <div v-show="!lecture.length" style="margin-left: 40%;font-size: 30px;">暂无授课课程</div>
+           <div  v-for="item in lecture" class="block" style="display: flex; ">
             <img src="../image/class.jpg"  alt="">
-            <div >
+                <div >
  <h1 class="name">{{ item.courseName }}</h1>
-<div style="margin-top: 20px;">授课老师:{{ item.teacherName }}</div>
-            </div> 
-        </div> -->
-    </div>
+<div style="margin-top: 20px;">授课老师: 未分配</div>
+                </div>
+ <div class="learn" style="margin-left: 600px;" @click="addCourse(item.courseID,item.courseName)">添加授课</div>
+            </div>
+        </div>
     </div>
 
     <!-- 管理员端 -->
@@ -86,7 +91,7 @@
 </template>
 
 <script  setup >
-import { getAllCourses, getAllLectures, getCourseByStudent, getNotStudentLectures, getStudentLectures, getTeacherLectures, selectCourse } from '@/utils/api';
+import { createCourseWithTeacher, getAllCourses, getAllLectures, getCourseByStudent, getNotStudentLectures, getNotTeacherLectures, getSingleUserInfo, getStudentLectures, getTeacherLectures, selectCourse } from '@/utils/api';
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // import  { Action } from 'element-plus'
@@ -97,6 +102,7 @@ const lecture=ref([])
 const array=ref([])
 const state=ref('0')
 const tableData = ref([])
+const teacherID=ref()
 const toMore=(courseID,teacherID)=>{
   router.push({
     name: 'DetailPage',  // 使用路由名称
@@ -104,6 +110,26 @@ const toMore=(courseID,teacherID)=>{
       courseId: courseID,           // 第一个参数
       teacherId: teacherID  // 第二个参数
     }
+  })
+}
+// 添加授课
+const addCourse=(courseId,courseName)=>{
+     ElMessageBox.alert(`<h4>课程名称：${courseName}</h4>`, '课程信息确认框', {
+    dangerouslyUseHTMLString: true,
+    confirmButtonText: '确认添加授课',
+    callback: (action) => {
+        if(action==='confirm'){
+          createCourseWithTeacher(courseId).then(res=>{
+                if(res.code===200){
+                ElMessage({
+                        type: 'sucess',
+                        message: res.message,
+                    })
+                    start()
+                }
+            })
+        }
+    },
   })
 }
 //加入课堂按钮
@@ -124,6 +150,7 @@ const select=(courseId,teacherId,courseName,teacherName)=>{
                         type: 'sucess',
                         message: res.message,
                     })
+                    start()
                 }
             })
         }
@@ -131,12 +158,15 @@ const select=(courseId,teacherId,courseName,teacherName)=>{
   })
 
 }
-onMounted(()=>{
-    state.value=localStorage.getItem('root')
+
+const start=()=>{
+ state.value=localStorage.getItem('root')
     //学生端
     if(state.value==='0'){
  getCourseByStudent().then(res=>{
-    array.value=res.courses
+    if(res.code===200){
+        array.value=res.courses
+    }
   })
 getNotStudentLectures().then(res=>{
     if(res.code===200){
@@ -148,9 +178,20 @@ getNotStudentLectures().then(res=>{
     }
     //老师端
     if(state.value==='1'){
+        getSingleUserInfo().then(res=>{
+            if(res.code===200){
+                teacherID.value=res.data.ID
+            }
+        })
         getTeacherLectures().then(res=>{
-            console.log(res)
+            if(res.code===200){
             array.value=res.lectures
+            }
+        })
+        getNotTeacherLectures().then(res=>{
+            if(res.code===200){
+                 lecture.value=res.lectures
+            }
         })
     }
     //管理员端
@@ -162,6 +203,9 @@ getNotStudentLectures().then(res=>{
     }
 
 
+}
+onMounted(()=>{
+   start()
 
 })
 </script>

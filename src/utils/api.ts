@@ -160,4 +160,20 @@ export const getTeacherLectures=()=>{
         method:"get"
     })
 }
- 
+//老师获取未开授课程
+export const getNotTeacherLectures=()=>{
+     return $http({
+         url:'/getNotTeacherLectures',
+        method:"get"
+    })
+}
+// 老师选择授课课程
+export const createCourseWithTeacher=(params:any)=>{
+  const formData=new FormData()
+     formData.append('course_id',params)
+      return $http({
+        url:'/createCourseWithTeacher',
+        method:"post",
+        data:formData
+    })
+}
