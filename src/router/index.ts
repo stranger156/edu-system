@@ -39,7 +39,11 @@ const router = createRouter({
         path: '/Message', // 完整路径：/user/profile
         name:'message',
         component: Message
-      }
+      },{
+        path: '/notice/:id/detail', // 预定义参数名 :id
+        name: 'noticeDetail',
+        component: NoticeDetail
+  }
     ]
     },
   {
@@ -79,10 +83,6 @@ const router = createRouter({
         props:true
       }
     ]
-  },{
-      path: '/notice/:id/detail', // 预定义参数名 :id
-  name: 'noticeDetail',
-  component: NoticeDetail
   }
     
   ],
