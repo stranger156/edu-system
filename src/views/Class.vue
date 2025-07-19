@@ -22,7 +22,7 @@
            </div>
         <!-- 选课 -->
          <div v-show="!model" style="margin-top: 50px;">
-            <div v-show="!lecture.length" style="margin-left: 40%;font-size: 30px;">暂无未选课程</div>
+            <div v-show="!lecture.length" style="margin-left: 40%;font-size: 30px;">暂无可选课程</div>
            <div  v-for="item in lecture" class="block" style="display: flex;">
             <img src="../image/class.jpg"  alt="" style=" cursor: pointer;">
             <div >

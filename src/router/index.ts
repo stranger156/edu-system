@@ -8,6 +8,8 @@ import Task from '@/views/Task.vue'
 import Chapter from '@/views/Chapter.vue'
 import Data from '@/views/Data.vue'
 import CourseMessage from '@/views/courseMessage.vue'
+import Student from '@/views/Student.vue'
+import NoticeDetail from '@/views/NoticeDetail.vue'
 
 
 const router = createRouter({
@@ -70,8 +72,17 @@ const router = createRouter({
         name:'courseMessage',
         component: CourseMessage,
         props:true
+      },{
+        path: 'student', // 完整路径：/user/profile
+        name:'student',
+        component: Student,
+        props:true
       }
     ]
+  },{
+      path: '/notice/:id/detail', // 预定义参数名 :id
+  name: 'noticeDetail',
+  component: NoticeDetail
   }
     
   ],
