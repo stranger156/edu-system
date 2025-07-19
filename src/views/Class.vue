@@ -41,9 +41,10 @@
         <button :class="model===false?'select active':'select'" @click="model=false" class="select">选课</button>
         <hr>
     </header>
-    <div style="margin-top: 50px;">
-        <!-- 我学的课 -->
-        <div  v-show="model" v-for="item in array" class="block" style="display: flex;">
+    <div style="margin-top: 50px;" v-show="model">
+        <!-- 我上的课 -->
+          <div v-show="!array.length" style="margin-left: 40%;font-size: 30px;">尚未加入课堂</div>
+        <div   v-for="item in array" class="block" style="display: flex;">
             <img src="../image/class.jpg" @click="toMore(item.courseID,item.teacherID)" alt="" style=" cursor: pointer;">
             <div >
  <h1 class="name" @click="toMore(item.courseID,item.teacherID)">{{ item.courseName }}</h1>
@@ -52,14 +53,15 @@
             </div> 
             <div class="learn" @click="toMore(item.courseID,item.teacherID)">查看详情</div>
         </div>
+           </div> 
         <!-- 选课 -->
-           <!-- <div @click="toMore(item.courseID,item.Tno)" v-show="!model" v-for="item in lecture" class="block" style="display: flex;">
+           <div @click="toMore(item.courseID,item.Tno)" v-show="!model" v-for="item in lecture" class="block" style="display: flex;">
             <img src="../image/class.jpg"  alt="">
             <div >
  <h1 class="name">{{ item.courseName }}</h1>
 <div style="margin-top: 20px;">授课老师:{{ item.teacherName }}</div>
-            </div> 
-        </div> -->
+         
+        </div>
     </div>
     </div>
 
@@ -146,6 +148,8 @@ getNotStudentLectures().then(res=>{
     }
 })
     }
+
+
     //老师端
     if(state.value==='1'){
         getTeacherLectures().then(res=>{
