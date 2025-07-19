@@ -1,10 +1,12 @@
 <template>
   <div class="notification-list">
+    <div v-show="!notices">暂无通知</div>
     <div v-for="(item, index) in notices" :key="index" class="notification-item" @click="viewDetails(item)">
       <img src="../image//notice.png" alt="通知图标" class="notification-icon" />
       <div class="notification-content">
         <div class="notification-title">{{ item.title }}</div>
-        <div class="notification-sender">发件人：{{ item.teacherName }}</div>
+        <div class="notification-sender" v-if="state=='0'">发件人：{{ item.teacherName }}</div>
+        <div class="notification-sender" v-if="state=='1'">教学课堂：{{ item.courseName }}</div>
       </div>
       <div class="notification-time">{{ item.publishTime }}</div>
     </div>
@@ -12,11 +14,12 @@
 </template>
 
 <script  setup>
-import { getAllNoticesByStudent} from '@/utils/api';
+import { getAllNoticesByStudent, getAllNoticesByTeacher} from '@/utils/api';
 import { ref, onMounted } from 'vue';
 
 // 模拟从API获取的通知数据
 const notices = ref({});
+const state = ref('')
 
 // 查看详情函数
 const viewDetails = (notice) => {
@@ -27,9 +30,16 @@ const viewDetails = (notice) => {
 };
 
 onMounted(()=>{
-  getAllNoticesByStudent().then(res=>{
-    notices.value=res.notices
-  })
+    state.value = localStorage.getItem('root')
+    if(state.value == '0'){
+        getAllNoticesByStudent().then(res=>{
+            notices.value=res.notices
+        })
+    }else if(state.value == '1'){
+        getAllNoticesByTeacher().then(res=>{
+            notices.value=res.notices
+        })
+    }
 })
 </script>
 

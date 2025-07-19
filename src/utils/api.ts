@@ -82,6 +82,31 @@ export const getLectureInfoByID=(params:any)=>{
         data:formData
     })
 }
+
+//根据课程id和教师id查找具体课程通知信息
+export const getLectureNoticeByStudent=(params:any)=>{
+     const formData=new FormData()
+     formData.append('courseID',params.courseId)
+    formData.append('teacherID',params.teacherId)
+    return $http({
+        url:'/getLectureNoticeByStudent',
+        method:"post",
+        data:formData
+    })
+}
+
+//学生类
+//根据课程id查找具体课程通知信息
+export const getLectureNoticeByTeacher=(params:any)=>{
+     const formData=new FormData()
+     formData.append('courseID',params)
+    return $http({
+        url:'/getLectureNoticeByTeacher',
+        method:"post",
+        data:formData
+    })
+}
+
 //课程类
 //获取所有课程
 export const getAllCourses=()=>{
@@ -99,7 +124,13 @@ export const getAllNoticesByStudent=()=>{
     })
 }
 
-
+//教师查看所有通知
+export const getAllNoticesByTeacher=()=>{
+     return $http({
+        url:'/getAllNoticesByTeacher',
+        method:"get"
+    })
+}
 
 
 
