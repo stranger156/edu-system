@@ -1,17 +1,14 @@
 <template>
-通知详情
+通知详情{{ userId }}
 </template>
 
 <script lang="ts" setup >
-defineProps({
-  courseId: {
-    type: [String, Number],
-    required: true
-  },
-  teacherId: {
-    type: [String, Number],
-    required: true
-  }
+import { onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+const route = useRoute();
+const userId = route.params.id; // 直接访问
+onMounted(()=>{
+  console.log(route.params.id)
 })
 </script>
 

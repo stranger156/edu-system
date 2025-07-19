@@ -33,7 +33,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script  setup>
 import { getLectureNoticeByStudent, getLectureNoticeByTeacher, publishNotice } from '@/utils/api';
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';

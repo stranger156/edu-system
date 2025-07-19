@@ -1,7 +1,7 @@
 <template>
   <div class="notification-list">
     <div v-show="!notices">暂无通知</div>
-    <div v-for="(item, index) in notices" :key="index" class="notification-item" @click="viewDetails(item)">
+    <div v-for="(item, index) in notices" :key="index" class="notification-item" @click="viewDetails(index)">
       <img src="../image//notice.png" alt="通知图标" class="notification-icon" />
       <div class="notification-content">
         <div class="notification-title">{{ item.title }}</div>
@@ -16,17 +16,17 @@
 <script  setup>
 import { getAllNoticesByStudent, getAllNoticesByTeacher} from '@/utils/api';
 import { ref, onMounted } from 'vue';
-
+import { useRouter } from 'vue-router';
+const router=useRouter()
 // 模拟从API获取的通知数据
 const notices = ref({});
 const state = ref('')
-
 // 查看详情函数
 const viewDetails = (notice) => {
   // 跳转到新的页面，传递通知详情（这里简单用console.log模拟）
   console.log('跳转到详情页面，通知内容:', notice);
   // 实际项目中可以使用vue-router进行页面跳转，例如：
-  // router.push({ name: 'NotificationDetails', params: { notice } });
+  router.push({ name: 'noticeDetail', params: { id:notice } });
 };
 
 onMounted(()=>{
