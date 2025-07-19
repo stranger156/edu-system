@@ -40,7 +40,7 @@ const router = createRouter({
         name:'message',
         component: Message
       },{
-        path: '/notice/:id/detail', // 预定义参数名 :id
+        path: '/notice/:id', // 预定义参数名 :id
         name: 'noticeDetail',
         component: NoticeDetail
   }
@@ -81,7 +81,11 @@ const router = createRouter({
         name:'student',
         component: Student,
         props:true
-      }
+      },{
+        path: '/detail/:courseId/:teacherId/:id/message', // 预定义参数名 :id
+        name: 'detail',
+        component: NoticeDetail
+  }
     ]
   }
     
