@@ -63,6 +63,13 @@ export const selectCourse=(params:any)=>{
         data:formData
     })
 }
+//学生查看未选课程
+export const getNotStudentLectures=()=>{
+     return $http({
+        url:'/getNotStudentLectures',
+        method:"get"
+    })
+}
 //课程类
 //根据课程id和教师id查找具体课程信息
 export const getLectureInfoByID=(params:any)=>{

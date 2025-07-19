@@ -6,9 +6,10 @@
         <button :class="model===false?'select active':'select'" @click="model=false" class="select">选课</button>
         <hr>
     </header>
-    <div style="margin-top: 50px;">
+    <div v-show="model" style="margin-top: 50px;">
+          <div v-show="!array.length" style="margin-left: 40%;font-size: 30px;">暂无已选课程</div>
         <!-- 我学的课 -->
-        <div  v-show="model" v-for="item in array" class="block" style="display: flex;">
+        <div  v-for="item in array" class="block" style="display: flex;">
             <img src="../image/class.jpg" @click="toMore(item.courseID,item.teacherID)" alt="" style=" cursor: pointer;">
             <div >
  <h1 class="name" @click="toMore(item.courseID,item.teacherID)">{{ item.courseName }}</h1>
@@ -18,8 +19,11 @@
             </div> 
             <div class="learn" @click="toMore(item.courseID,item.teacherID)">进入学习</div>
         </div>
+           </div>
         <!-- 选课 -->
-           <div  v-show="!model" v-for="item in lecture" class="block" style="display: flex;">
+         <div v-show="!model" style="margin-top: 50px;">
+            <div v-show="!lecture.length" style="margin-left: 40%;font-size: 30px;">暂无未选课程</div>
+           <div  v-for="item in lecture" class="block" style="display: flex;">
             <img src="../image/class.jpg"  alt="" style=" cursor: pointer;">
             <div >
  <h1 class="name">{{ item.courseName }}</h1>
@@ -27,7 +31,7 @@
             </div> 
             <div class="learn" style="margin-left: 600px;" @click="select(item.courseID,item.Tno,item.courseName,item.teacherName)">加入课堂</div>
         </div>
-    </div>
+        </div>
     </div>
 
     <!-- 老师端 -->
@@ -82,7 +86,7 @@
 </template>
 
 <script  setup >
-import { getAllCourses, getAllLectures, getCourseByStudent, getStudentLectures, getTeacherLectures, selectCourse } from '@/utils/api';
+import { getAllCourses, getAllLectures, getCourseByStudent, getNotStudentLectures, getStudentLectures, getTeacherLectures, selectCourse } from '@/utils/api';
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // import  { Action } from 'element-plus'
@@ -134,9 +138,13 @@ onMounted(()=>{
  getCourseByStudent().then(res=>{
     array.value=res.courses
   })
-  getStudentLectures().then(res=>{
-    lecture.value=res.lectures
-  })
+getNotStudentLectures().then(res=>{
+    if(res.code===200){
+        if(res.lectures){
+             lecture.value=res.lectures
+        }
+    }
+})
     }
     //老师端
     if(state.value==='1'){

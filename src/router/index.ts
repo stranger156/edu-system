@@ -7,6 +7,7 @@ import DetailView from '@/views/DetailView.vue'
 import Task from '@/views/Task.vue'
 import Chapter from '@/views/Chapter.vue'
 import Data from '@/views/Data.vue'
+import CourseMessage from '@/views/courseMessage.vue'
 
 
 const router = createRouter({
@@ -63,6 +64,11 @@ const router = createRouter({
         path: 'Data', // 完整路径：/user/profile
         name:'Data',
         component: Data,
+        props:true
+      },{
+        path: 'courseMessage', // 完整路径：/user/profile
+        name:'courseMessage',
+        component: CourseMessage,
         props:true
       }
     ]

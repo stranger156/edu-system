@@ -20,6 +20,10 @@
   <el-icon :size="20"><FolderOpened /></el-icon>
    <span style="margin-left: 10px;">资料</span>
  </router-link>
+  <router-link :to="{ name: 'courseMessage' }" :class="title==='通知'?'link active':'link'" @click="title='通知'">
+  <el-icon :size="20"><MessageBox/></el-icon>
+   <span style="margin-left: 10px;">通知</span>
+ </router-link>
 </div>
       </el-aside>
       <el-container>
