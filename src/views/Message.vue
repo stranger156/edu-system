@@ -6,7 +6,7 @@
       <div class="notification-content">
         <div class="notification-title">{{ item.title }}</div>
         <div class="notification-sender" v-if="state=='0'">发件人：{{ item.teacherName }}</div>
-        <div class="notification-sender" v-if="state=='1'">教学课堂：{{ item.courseName }}</div>
+        <div class="notification-sender" v-if="state=='1'">收件课堂：{{ item.courseName }}</div>
       </div>
       <div class="notification-time">{{ item.publishTime }}</div>
     </div>
