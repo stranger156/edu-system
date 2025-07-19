@@ -28,7 +28,6 @@ const props = defineProps({
     required: true
   }
 })
-<<<<<<< HEAD
 
 // 模拟从API获取的通知数据
 const notices = ref({});
@@ -57,10 +56,6 @@ onMounted(()=>{
             notices.value=res.notices
         })
     }
-=======
-onMounted(()=>{
-    console.log(props.courseId)
->>>>>>> 1929ce2578d708866573a55dfe6c1c21585fe3b0
 })
 </script>
 
