@@ -96,7 +96,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 // import  { Action } from 'element-plus'
 const router = useRouter()
-import { onMounted, ref } from 'vue';
+import { onBeforeMount, onMounted, ref } from 'vue';
 const model=ref(true)
 const lecture=ref([])
 const array=ref([])
@@ -204,9 +204,9 @@ getNotStudentLectures().then(res=>{
 
 
 }
-onMounted(()=>{
-   start()
 
+onBeforeMount(()=>{
+   start()
 })
 </script>
 

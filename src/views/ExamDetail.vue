@@ -44,7 +44,6 @@
 import { get_all_exams_for_teacher_by_exam, get_exam_for_student } from '@/utils/api'
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import {marked} from 'marked';
 
 const route = useRoute();
 const router = useRouter();
