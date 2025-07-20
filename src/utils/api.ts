@@ -70,6 +70,14 @@ export const getNotStudentLectures=()=>{
         method:"get"
     })
 }
+// 学生获取练习题
+export const getExam=()=>{
+     return $http({
+        url:'/get_student_unfinished_exams',
+        method:"get"
+    })
+}
+
 //课程类
 //根据课程id和教师id查找具体课程信息
 export const getLectureInfoByID=(params:any)=>{
@@ -121,6 +129,44 @@ export const getAllNoticesByStudent=()=>{
      return $http({
         url:'/getAllNoticesByStudent',
         method:"get"
+    })
+}
+
+// 学生根据课程id和老师id返回chatid
+export const getChatIDByStudentWIthID=(params:any,param:any)=>{
+  const formData=new FormData()
+    formData.append('course_id',params)
+    formData.append('teacher_id',param)
+      return $http({
+        url:'/getChatIDByStudentWIthID',
+        method:"post",
+        data:formData
+    })
+}
+//根据会话id获取会话
+export const getSessionsByID=(chatid:any,sessionid:any)=>{
+      return $http({
+        url:'/getSessionsByID',
+        method:"get",
+         headers:{ "Content-Type":"application/json" },
+        params:{
+            chat_id:chatid,
+            session_id:sessionid
+        }
+    })
+}
+//询问实训助手
+export const sendQuestion=(params:any)=>{
+    const formData=new FormData()
+     formData.append('question',params.question)
+     formData.append('sessionID',params.sessionid)
+     formData.append('chatID',params.chatid)
+     formData.append('courseID',params.courseid)
+      return $http({
+        url:'/stream_and_generate',
+        method:"post",
+        data:formData,
+        responseType: 'text', // 使用 'text' 代替 'stream'
     })
 }
 
@@ -219,6 +265,27 @@ export const publishNotice=(params:any)=>{
         url:'/publishNotice',
         method:"post",
         data:formData
+    })
+}
+// 老师获取聊天助手id
+export const get_chatID=(params:any)=>{
+    const formData=new FormData()
+     formData.append('courseID', params)
+       return $http({
+        url:'/get_chatID',
+        method:"post",
+        data:formData
+    })
+}
+//根据聊天助手id获取聊天历史记录
+export const getSessions=(params:any)=>{
+       return $http({
+        url:'/getSessions',
+        method:"get",
+        headers:{ "Content-Type":"application/json" },
+        params:{
+            chat_id:params
+        }
     })
 }
 

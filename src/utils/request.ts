@@ -21,7 +21,7 @@ interface AxiosInstance{
 }
 const $http = axios.create({
   baseURL: "http://tasedu.s7.tunnelfrp.com",
-  timeout: 1000,
+  timeout: 1000000,
   headers:{
   'Content-Type': 'multipart/form-data' 
   }

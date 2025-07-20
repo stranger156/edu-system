@@ -49,7 +49,7 @@
  import { RouterView } from 'vue-router';
 import router from '@/router';
 import { useRoute} from 'vue-router';
-import  { onMounted, ref } from 'vue';
+import  { onBeforeMount, onMounted, ref, watch } from 'vue';
 import { getSingleUserInfo } from '@/utils/api';
 const title=ref('')
 const name=ref('')
@@ -57,8 +57,24 @@ const route = useRoute();
 const toLogin=()=>{
   router.push('/')
 }
-const state=ref(0)
-onMounted(()=>{
+const state=ref()
+watch(
+  () => route.name,
+  (newPath, oldPath) => {
+   if(newPath==='main'){
+title.value='首页'
+ }
+  if(newPath==='class'){
+title.value='课程'
+ } 
+ if(newPath==='message'){
+title.value='通知'
+ }
+  }
+);
+
+onBeforeMount(()=>{
+state.value=localStorage.getItem('root')
  if(route.name==='main'){
 title.value='首页'
  }
@@ -71,7 +87,7 @@ title.value='通知'
   getSingleUserInfo().then(res=>{
     name.value=res.data.userName
   })
-  state.value=localStorage.getItem('root')
+
 })
 </script>
 <style scoped>
