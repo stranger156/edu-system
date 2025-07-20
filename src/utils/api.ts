@@ -178,6 +178,17 @@ export const createCourseWithTeacher=(params:any)=>{
     })
 }
 
+// 老师根据练习题ID获取练习题
+export const get_all_exams_for_teacher_by_exam=(params:any)=>{
+  const formData=new FormData()
+     formData.append('exam_id',params)
+      return $http({
+        url:'/get_all_exams_for_teacher_by_exam',
+        method:"post",
+        data:formData
+    })
+}
+
 // 老师发布通知
 export const publishNotice=(params:any)=>{
   const formData=new FormData()
@@ -199,5 +210,43 @@ export const getNoticeDetailByNoticeID=(params:any)=>{
         url:'/getNoticeDetailByNoticeID',
         method:"post",
         data:formData
+    })
+}
+
+// 获取课程学生
+export const getStudents=(params:any)=>{
+  const formData=new FormData()
+     formData.append('courseID', params)
+      return $http({
+        url:'/getStudents',
+        method:"post",
+        data:formData
+    })
+}
+
+// 获取课程作业
+export const get_all_exams_for_teacher_by_course=(params:any)=>{
+  const formData=new FormData()
+     formData.append('course_id', params)
+      return $http({
+        url:'/get_all_exams_for_teacher_by_course',
+        method:"post",
+        data:formData
+    })
+}
+
+// 获取全部学生
+export const getAllStudents=()=>{
+      return $http({
+        url:'/getAllStudents',
+        method:"get",
+    })
+}
+
+// 获取全部老师
+export const getAllTeachers=()=>{
+      return $http({
+        url:'/getAllTeachers',
+        method:"get",
     })
 }

@@ -10,6 +10,8 @@ import Data from '@/views/Data.vue'
 import CourseMessage from '@/views/courseMessage.vue'
 import Student from '@/views/Student.vue'
 import NoticeDetail from '@/views/NoticeDetail.vue'
+import UserDetail from '@/views/UserDetail.vue'
+import ExamDetail from '@/views/ExamDetail.vue'
 
 
 const router = createRouter({
@@ -39,11 +41,17 @@ const router = createRouter({
         path: '/Message', // 完整路径：/user/profile
         name:'message',
         component: Message
-      },{
+      },
+      {
+        path: '/UserDetail', // 完整路径：/user/profile
+        name:'userdetail',
+        component: UserDetail
+      },
+      {
         path: '/notice/:id', // 预定义参数名 :id
         name: 'noticeDetail',
         component: NoticeDetail
-  }
+      }
     ]
     },
   {
@@ -85,6 +93,11 @@ const router = createRouter({
         path: '/detail/:courseId/:teacherId/:id/message', // 预定义参数名 :id
         name: 'detail',
         component: NoticeDetail
+  },
+  {
+        path: '/detail/:courseId/:teacherId/:id/examDetail', // 预定义参数名 :id
+        name: 'examDetail',
+        component: ExamDetail
   }
     ]
   }

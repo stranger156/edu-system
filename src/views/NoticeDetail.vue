@@ -1,5 +1,6 @@
 <template>
   <div class="notification-container">
+    <button class='returnButton' @click="returnBack">返回</button>
     <div class="notification-header-card">
       <h2 class="notification-subject">{{ notification.title }}</h2>
       <div class="notification-meta">
@@ -21,9 +22,10 @@
 <script lang="ts" setup>
 import {getNoticeDetailByNoticeID} from '@/utils/api'
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 const noticeID = route.params.id;
 
 // 模拟通知数据
@@ -34,13 +36,27 @@ onMounted(() => {
     notification.value = res.detail;
   })
 });
+const returnBack = () => {
+  router.back();
+}
 </script>
 
 <style scoped>
+.returnButton {
+  background-color:#009ad6;
+  color:white;
+  border-color: #009ad6;
+  width:96px;
+  height:42px;
+  border-radius: 12px;
+  font-size: 15px;
+  margin-bottom: 6px;
+  cursor:pointer;
+}
 .notification-container {
   background-color: white;
   height:100%;
-  padding: 20px;
+  padding: 10px;
 }
 
 .notification-header-card {
@@ -66,7 +82,7 @@ onMounted(() => {
 .notification-meta {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   color: #666;
   font-size: 14px;
 }
