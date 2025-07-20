@@ -7,9 +7,11 @@ import DetailView from '@/views/DetailView.vue'
 import Task from '@/views/Task.vue'
 import Chapter from '@/views/Chapter.vue'
 import Data from '@/views/Data.vue'
-import CourseMessage from '@/views/courseMessage.vue'
+import CourseMessage from '@/views/CourseMessage.vue'
 import Student from '@/views/Student.vue'
 import NoticeDetail from '@/views/NoticeDetail.vue'
+import AI from '@/views/AI.vue'
+import Examine from '@/views/examine.vue'
 
 
 const router = createRouter({
@@ -85,6 +87,16 @@ const router = createRouter({
         path: '/detail/:courseId/:teacherId/:id/message', // 预定义参数名 :id
         name: 'detail',
         component: NoticeDetail
+  },{
+     path: 'Aichat', // 完整路径：/user/profile
+        name:'Aichat',
+        component: AI,
+        props:true
+  },{
+     path: 'examine', // 完整路径：/user/profile
+        name:'examine',
+        component: Examine,
+        props:true
   }
     ]
   }
