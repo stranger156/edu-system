@@ -8,19 +8,15 @@
             <div style="text-align: center;color: black; margin-bottom: 30px;font-size: 20px;"> {{ name }}</div>
         </div>
 <div> 
-    <router-link  :to="{ name: 'Chapter' }" :class="title==='Chapter'?'link active':'link'" @click="title='Chapter'">
-  <el-icon :size="20"><MessageBox /></el-icon>
- <span style="margin-left: 10px;">章节</span>
- </router-link>
-  <router-link :to="{ name: 'Task' }" @click="title='Task'" :class="title==='Task'?'link active':'link'" >
-    <el-icon :size="20"><Menu /></el-icon>
-     <span style="margin-left: 10px;">任务</span>
-  </router-link>
- <router-link :to="{ name: 'Data' }" :class="title==='Data'?'link active':'link'" @click="title='Data'">
+  <router-link :to="{ name: 'Data' }" :class="title==='Data'?'link active':'link'" @click="title='Data'">
   <el-icon :size="20"><FolderOpened /></el-icon>
    <span style="margin-left: 10px;">资料</span>
+   </router-link>
+  <router-link :to="{ name: 'Task' }" @click="title='Task'" :class="title==='Task'?'link active':'link'" >
+    <el-icon :size="20"><Menu /></el-icon>
+     <span style="margin-left: 10px;">作业</span>
  </router-link>
-  <router-link :to="{ name: 'courseMessage' }" :class="title==='courseMessage'?'link active':'link'" @click="title='courseMessage'">
+  <router-link :to="{ name: 'courseMessage' }" :class="title==='courseMessage'?'link active':'link'" @click="title='courseMessage'" v-if="state == '0' || state == '1'">
   <el-icon :size="20"><MessageBox/></el-icon>
    <span style="margin-left: 10px;">通知</span>
  </router-link>
@@ -66,6 +62,7 @@ import { useRoute} from 'vue-router';
 const name=ref('')
 const route = useRoute();
 const title=ref('')
+const state=ref('')
 // 定义 props（必须与路由参数名匹配）
 const props = defineProps({
   courseId: {
@@ -94,6 +91,7 @@ const lecture={
 // 组件挂载时使用参数
 onMounted(() => {
   title.value=route.name
+  state.value = localStorage.getItem('root')
   getLectureInfoByID(lecture).then(res=>{
     console.log(res)
     name.value=res.courseName

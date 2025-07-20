@@ -8,16 +8,20 @@
  </div>
 <div> 
   <router-link to="/Home" @click="title='首页'" :class="title==='首页'?'link active':'link'" >
-    <el-icon :size="20"><HomeFilled /></el-icon>
+    <el-icon :size="18"><HomeFilled /></el-icon>
      <span style="margin-left: 10px;">首页</span>
   </router-link>
  <router-link to="/Class" :class="title==='课程'?'link active':'link'" @click="title='课程'">
-  <el-icon :size="20"><List /></el-icon>
+  <el-icon :size="18"><List /></el-icon>
    <span style="margin-left: 10px;">课程</span>
  </router-link>
- <router-link  to="/Message" :class="title==='通知'?'link active':'link'" @click="title='通知'">
-  <el-icon :size="20"><MessageBox /></el-icon>
+ <router-link  to="/Message" :class="title==='通知'?'link active':'link'" @click="title='通知'" v-if="state == '0' || state =='1'">
+  <el-icon :size="18"><MessageBox /></el-icon>
  <span style="margin-left: 10px;">通知</span>
+ </router-link>
+ <router-link  to="/UserDetail" :class="title==='用户详情'?'link active':'link'" @click="title='用户详情'" v-if="state == '2'">
+  <el-icon :size="18"><User /></el-icon>
+ <span style="margin-left: 10px;">用户详情</span>
  </router-link>
 </div>
       </el-aside>
@@ -53,6 +57,7 @@ const route = useRoute();
 const toLogin=()=>{
   router.push('/')
 }
+const state=ref()
 watch(
   () => route.name,
   (newPath, oldPath) => {
@@ -69,6 +74,7 @@ title.value='通知'
 );
 
 onBeforeMount(()=>{
+state.value=localStorage.getItem('root')
  if(route.name==='main'){
 title.value='首页'
  }

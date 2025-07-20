@@ -5,13 +5,14 @@ import Class from '@/views/Class.vue'
 import Message from '@/views/Message.vue'
 import DetailView from '@/views/DetailView.vue'
 import Task from '@/views/Task.vue'
-import Chapter from '@/views/Chapter.vue'
 import Data from '@/views/Data.vue'
 import CourseMessage from '@/views/CourseMessage.vue'
 import Student from '@/views/Student.vue'
 import NoticeDetail from '@/views/NoticeDetail.vue'
 import AI from '@/views/AI.vue'
 import Examine from '@/views/examine.vue'
+import UserDetail from '@/views/UserDetail.vue'
+import ExamDetail from '@/views/ExamDetail.vue'
 
 
 const router = createRouter({
@@ -41,11 +42,17 @@ const router = createRouter({
         path: '/Message', // 完整路径：/user/profile
         name:'message',
         component: Message
-      },{
+      },
+      {
+        path: '/UserDetail', // 完整路径：/user/profile
+        name:'userdetail',
+        component: UserDetail
+      },
+      {
         path: '/notice/:id', // 预定义参数名 :id
         name: 'noticeDetail',
         component: NoticeDetail
-  }
+      }
     ]
     },
   {
@@ -55,14 +62,9 @@ const router = createRouter({
     children:[{
      path: '',
       name: 'DetailPage', 
-    redirect: { name: 'Chapter' }
+    redirect: { name: 'Data' }
     }
-    ,{
-        path: 'Chapter', // 完整路径：/user/profile
-        name:'Chapter',
-        component: Chapter,
-        props:true
-    },
+,
        {
         path: 'Task', // 完整路径：/user/profile
         name:'Task',
@@ -97,6 +99,11 @@ const router = createRouter({
         name:'examine',
         component: Examine,
         props:true
+  },
+  {
+        path: '/detail/:courseId/:teacherId/:id/examDetail', // 预定义参数名 :id
+        name: 'examDetail',
+        component: ExamDetail
   }
     ]
   }
