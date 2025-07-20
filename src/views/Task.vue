@@ -60,7 +60,6 @@ onMounted(() => {
       notices.value = res.data
     })
   }
-  
 });
 </script>
 
