@@ -77,6 +77,13 @@ export const getExam=()=>{
         method:"get"
     })
 }
+//学生根据练习题id获取练习题内容
+export const getTest=(params:any)=>{
+     return $http({
+        url:`/get_exam_for_student/${params}`,
+        method:"get"
+    })
+}
 
 //课程类
 //根据课程id和教师id查找具体课程信息

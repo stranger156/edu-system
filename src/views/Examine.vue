@@ -1,14 +1,13 @@
 <template>
 <div>
     <div style="padding: 10px;font-size: 20px;">练习题</div>
-    <div v-for="item in testList" class="test">
+    <div v-for="item in testList" class="test" @click="toDetail(item.练习题ID)">
       <img src="../image/test.png" alt="" class="image">
       <div class="mid">
         <h3> {{ item.练习题标题 }}</h3>
         <div style="padding-top: 5px;">结束时间： {{ item.结束时间 }}</div>
       </div>
     <div :class="item.status==='已完成'?'over':'notover'"> {{ item.status }}</div>
-      
     </div>
 
 </div>
@@ -17,6 +16,8 @@
 <script  setup >
 import { getExam } from '@/utils/api';
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+const router=useRouter()
 const testList=ref([])
 defineProps({
   courseId: {
@@ -28,6 +29,9 @@ defineProps({
     required: true
   }
 })
+const toDetail=(id)=>{
+  router.push({ name: 'examineDetail', params: { id:id } });
+}
 onMounted(()=>{
     getExam().then(res=>{
         console.log(res)
