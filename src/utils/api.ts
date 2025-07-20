@@ -247,7 +247,8 @@ export const getStudents=(params:any)=>{
 // 获取课程作业
 export const get_all_exams_for_teacher_by_course=(params:any)=>{
   const formData=new FormData()
-     formData.append('course_id', params)
+     formData.append('course_id', params.courseId)
+     formData.append('teacher_id', params.teacherId)
       return $http({
         url:'/get_all_exams_for_teacher_by_course',
         method:"post",
