@@ -21,15 +21,17 @@
               <h3 class="question-type">{{ type }} {{ index + 1 }}</h3>
               <div class="question-section">
                 <span class="section-label">题目：</span>
-                {{ question.题目 }}
+                <div v-html="question.题目"></div>
               </div>
-              <div class="question-section" v-if="state!='0'">
+
+              <div class="question-section" v-if="state !== '0'">
                 <span class="section-label">答案：</span>
-                {{ question.答案 }}
+                <div v-html="question.答案"></div>
               </div>
-              <div class="question-section" v-if="state!='0'">
+              
+              <div class="question-section" v-if="state !== '0'">
                 <span class="section-label">解析：</span>
-                {{ question.解析 }}
+                <div v-html="question.解析"></div>
               </div>
             </div>
           </div>
@@ -44,6 +46,8 @@
 import { get_all_exams_for_teacher_by_exam, get_exam_for_student } from '@/utils/api'
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+// import { useMathJax } from '@/utils/useMathJax';
+
 
 const route = useRoute();
 const router = useRouter();
@@ -91,6 +95,8 @@ onMounted(() => {
     
 });
 
+useMathJax(notification);
+
 const returnBack = () => {
   router.back();
 }
@@ -103,6 +109,8 @@ const returnBack = () => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin-bottom: 20px;
+  padding: 10px; /* 将内边距移到外层，让内部卡片边缘清晰 */
+  box-sizing: border-box; /* 内边距不增加总高度 */
 }
 
 .notification-scroll-wrapper {

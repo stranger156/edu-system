@@ -55,12 +55,11 @@ onMounted(() => {
       notices.value = res.data
     })
   }else{
-    get_all_exams_for_teacher_by_course(lecture.courseId).then(res => {
+    get_all_exams_for_teacher_by_course(lecture).then(res => {
       console.log(res)
       notices.value = res.data
     })
   }
-  
 });
 </script>
 
