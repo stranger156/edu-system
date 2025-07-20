@@ -189,6 +189,26 @@ export const get_all_exams_for_teacher_by_exam=(params:any)=>{
     })
 }
 
+// 学生根据课程ID和老师ID获取练习题
+export const get_exam_for_student_by_course=(params:any)=>{
+  const formData=new FormData()
+     formData.append('course_id',params.courseId)
+     formData.append('teacher_id', params.teacherId)
+      return $http({
+        url:'/get_exam_for_student_by_course',
+        method:"post",
+        data:formData
+    })
+}
+
+// 学生根据练习题ID获取练习题
+export const get_exam_for_student=(params:any)=>{
+      return $http({
+        url:`/get_exam_for_student/${params}`,
+        method:"get",
+    })
+}
+
 // 老师发布通知
 export const publishNotice=(params:any)=>{
   const formData=new FormData()

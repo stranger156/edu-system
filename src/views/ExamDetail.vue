@@ -8,7 +8,7 @@
         <span class="notification-sender">发布时间：{{ notification.start_time }}</span>
         <span class="notification-time">截止时间：{{ notification.end_time }}</span>
       </div>
-      <div class="notification-recipients">
+      <div class="notification-recipients" v-if="state != '0'">
         提交人数：{{ notification.submission_count }}/{{ notification.total_students }}
       </div>
     </div>
@@ -23,11 +23,11 @@
                 <span class="section-label">题目：</span>
                 {{ question.题目 }}
               </div>
-              <div class="question-section">
+              <div class="question-section" v-if="state!='0'">
                 <span class="section-label">答案：</span>
                 {{ question.答案 }}
               </div>
-              <div class="question-section">
+              <div class="question-section" v-if="state!='0'">
                 <span class="section-label">解析：</span>
                 {{ question.解析 }}
               </div>
@@ -41,20 +41,27 @@
 </template>
 
 <script lang="ts" setup>
-import { get_all_exams_for_teacher_by_exam } from '@/utils/api'
+import { get_all_exams_for_teacher_by_exam, get_exam_for_student } from '@/utils/api'
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import {marked} from 'marked';
 
 const route = useRoute();
 const router = useRouter();
 const noticeID = route.params.id;
+const state = ref('')
 
 // 新增题型顺序定义
 const questionTypes = ['选择题', '判断题', '简答题'];
 
 // 新增题目处理方法
 const getQuestionsByType = (type: string) => {
-  const content = notification.value?.content || {};
+    let content = {}
+  if(state.value == '0'){
+    content = notification.value?.exam_content || {};
+  }else{
+    content = notification.value?.content || {};
+  }
   const questions = content[type] || {};
   
   return Object.entries(questions)
@@ -72,9 +79,17 @@ const getQuestionsByType = (type: string) => {
 const notification = ref<any>({});
 
 onMounted(() => {
-  get_all_exams_for_teacher_by_exam(noticeID).then(res => {
-    notification.value = res.data[0];
-  })
+    state.value = localStorage.getItem('root');
+    if(state.value == '0'){
+        get_exam_for_student(noticeID).then(res => {
+            notification.value = res.data;
+        })
+    }else{
+        get_all_exams_for_teacher_by_exam(noticeID).then(res => {
+            notification.value = res.data[0];
+        })
+    }
+    
 });
 
 const returnBack = () => {

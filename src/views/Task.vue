@@ -5,7 +5,8 @@
       <img src="../image//homework.png" alt="作业图标" class="notification-icon" />
       <div class="notification-content">
         <div class="notification-title">{{ item.exam_title }}</div>
-        <div class="notification-sender">提交人数：{{ item.submission_count}} / {{ item.total_students }}</div>
+        <div class="notification-sender" v-if="state == '0'">状态：{{ item.status }}</div>
+        <div class="notification-sender" v-if="state != '0'">提交人数：{{ item.submission_count}} / {{ item.total_students }}</div>
       </div>
       <div class="notification-time-container">
         <div class="notification-time">开始时间：{{ item.start_time }}</div>
@@ -16,7 +17,7 @@
 </template>
 
 <script  setup>
-import { get_all_exams_for_teacher_by_course} from '@/utils/api';
+import { get_all_exams_for_teacher_by_course, get_exam_for_student_by_course} from '@/utils/api';
 import { ref, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
@@ -47,9 +48,19 @@ const viewDetails = (notice) => {
 };
 
 onMounted(() => {
-  get_all_exams_for_teacher_by_course(lecture.courseId).then(res => {
-    notices.value = res.data
-  })
+  state.value = localStorage.getItem('root');
+  if(state.value == '0'){
+    get_exam_for_student_by_course(lecture).then(res => {
+      console.log(res)
+      notices.value = res.data
+    })
+  }else{
+    get_all_exams_for_teacher_by_course(lecture.courseId).then(res => {
+      console.log(res)
+      notices.value = res.data
+    })
+  }
+  
 });
 </script>
 
