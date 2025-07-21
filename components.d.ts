@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AdminFooter: typeof import('./src/components/bottomComponents/AdminFooter.vue')['default']
     AssignmentArea: typeof import('./src/components/AssignmentArea.vue')['default']
     BottomComponent: typeof import('./src/components/BottomComponent.vue')['default']
     Class: typeof import('./src/components/Class.vue')['default']
@@ -35,5 +36,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Select: typeof import('./src/components/select.vue')['default']
+    StudentFooter: typeof import('./src/components/bottomComponents/StudentFooter.vue')['default']
+    TeacherFooter: typeof import('./src/components/bottomComponents/TeacherFooter.vue')['default']
   }
 }

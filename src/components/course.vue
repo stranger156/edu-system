@@ -1,30 +1,34 @@
 <template>
   <div class="all">
-    <!-- 1. 标题现在直接依赖于计算属性，自动变化 -->
-    <div>{{ pageTitle }}</div>
-    
-    <hr>
-    
-    <!-- 课程列表，当 array 有数据时才显示 -->
-    <div v-if="!isLoading && array.length > 0">
-      <div v-for="course in array" :key="course.courseID" class="cla">
-        <!-- 假设每个课程对象都有 courseID 和 courseName -->
-        {{ course.courseName }}
+    <div class="list-header"><div>{{ pageTitle }}</div><hr></div>
+    <div class="scrollable-content">
+      <div v-if="isLoading" class="loading-state">正在加载...</div>
+      <div v-else-if="array.length === 0" class="empty-state">{{ emptyMessage }}</div>
+      <div v-else>
+        <!-- :key 现在使用一个更唯一的组合键，防止重复 -->
+        <div v-for="item in array" :key="`${item.courseID}-${item.Tno || 0}`" class="cla">
+          <div class="course-item">
+            <div class="course-title">{{ item.courseName }}</div>
+            
+            <!-- A. 学生视图：只显示老师姓名 -->
+            <div v-if="user.root == '0' && item.teacherName" class="teacher-name">
+              授课教师: {{ item.teacherName }}
+            </div>
+            
+            <!-- B. 管理员视图：显示老师姓名和Tno -->
+            <!--    我们假设非管理员视图的数据中没有 Tno 字段 -->
+            <div v-if="user.root == '2' && item.teacherName" class="teacher-name">
+              授课教师: {{ item.teacherName }}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    
-    <!-- 加载中状态 -->
-    <div v-if="isLoading" class="loading-state">正在加载课程...</div>
-    
-    <!-- 加载完成但无数据状态 -->
-    <div v-else-if="array.length === 0" class="empty-state">
-      {{ emptyMessage }}
     </div>
   </div>
 </template>
 
 <script setup>
-import { getAllCourses, getCourseByStudent, getTeacherLectures } from '@/utils/api';
+import { getAllCourses, getAllLectures, getCourseByStudent, getTeacherLectures } from '@/utils/api';
 import { onMounted, ref, computed, watch } from 'vue'; // 1. 引入 watch
 import { useUserStore } from '@/stores/token';
 import { storeToRefs } from 'pinia';
@@ -52,43 +56,49 @@ const emptyMessage = computed(() => {
 });
 
 // --- 3. 核心数据获取逻辑 (封装成一个函数) ---
-const fetchCourses = () => {
-  // 如果 root 值不存在，则不执行任何操作
+const fetchCourses = async () => {
   if (user.value.root === null || user.value.root === undefined) {
+    isLoading.value = false;
     return;
   }
   
   isLoading.value = true;
-  array.value = []; // 在请求前清空旧数据
+  array.value = [];
 
-  let apiCall;
-
-  // 根据 root 值决定调用哪个 API
-  if (user.value.root == '0') {
-    apiCall = getCourseByStudent();
-  } else if (user.value.root == '1') {
-    apiCall = getTeacherLectures();
-  } else if (user.value.root == '2') {
-    apiCall = getAllCourses();
-  } else {
-    console.error(`Invalid user root: ${user.value.root}`);
-    isLoading.value = false;
-    return;
-  }
-
-  // 执行 API 调用
-  apiCall.then(res => {
-    const coursesList = res.data || res.courses || res.lectures || [];
-    if (Array.isArray(coursesList)) {
-      array.value = coursesList;
+  try {
+    let response;
+    // 根据角色调用不同的 API
+    if (user.value.root == '0') {
+      response = await getCourseByStudent();
+      array.value = response.courses || [];
+    } else if (user.value.root == '1') {
+      response = await getTeacherLectures();
+      array.value = response.lectures || [];
+    } else if (user.value.root == '2') {
+      // 管理员获取所有授课信息
+      response = await getAllLectures(); // 假设这个 API 返回您提供的 JSON 结构
+      let lectures = response.lectures || [];
+      
+      // **核心：按课程号、老师号排序**
+      lectures.sort((a, b) => {
+        // 首先比较课程 ID
+        if (a.courseID !== b.courseID) {
+          return a.courseID - b.courseID;
+        }
+        // 如果课程 ID 相同，则比较老师 Tno
+        return a.Tno - b.Tno;
+      });
+      
+      array.value = lectures;
     } else {
-      console.warn("API response is not an array:", res);
+      console.error(`Invalid user root: ${user.value.root}`);
     }
-  }).catch(error => {
-    console.error("Failed to fetch courses:", error);
-  }).finally(() => {
+  } catch (error) {
+    console.error("Failed to fetch data:", error);
+    array.value = []; // 确保出错时数组为空
+  } finally {
     isLoading.value = false;
-  });
+  }
 };
 
 // --- 4. 使用 watch 替代 onMounted 的主要职责 ---
@@ -109,18 +119,67 @@ watch(
 </script>
 
 <style scoped>
-.all{
-     width: 100%;
-    height: 100%;
-    padding: 10px;
-    border: 2px solid rgb(39, 155, 194); /* 增加了'solid'样式 */
-    border-radius: 5px;
+/* --- 1. 通用布局样式 (适用于所有页面) --- */
+.all {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  border: 2px solid rgb(39, 155, 194);
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
-.cla{
-    margin-top: 5px;
-    background-color: #cdeef4;
-    border-radius: 5px;
-    padding: 10px;
-    cursor: pointer;
+
+.list-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
+  flex-shrink: 0;
+}
+
+.scrollable-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-top: 15px;
+}
+
+.loading-state, .empty-state {
+  text-align: center;
+  padding-top: 50px;
+  font-size: 16px;
+  color: #888;
+}
+
+/* --- 2. 通用卡片样式 (适用于所有列表项) --- */
+.cla {
+  margin-bottom: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.cla:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* 新增：课程标题的样式 */
+.course-title {
+    font-size: 16px; /* 假设这是主要的字体大小 */
+    font-weight: bold;
+}
+
+/* 新增：教师姓名的样式 */
+.teacher-name {
+    font-size: 13px; /* 设置一个更小的字体 */
+    color: #555;     /* 使用一个柔和的颜色 */
+    margin-top: 4px; /* 与课程标题之间增加一点间距 */
 }
 </style>
