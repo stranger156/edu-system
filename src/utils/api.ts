@@ -328,6 +328,18 @@ export const get_course_files_for_teacher=(params:any)=>{
     })
 }
 
+// 学生和管理员根据老师ID和课程ID获取文件列表
+export const get_all_files_for_admin=(params:any)=>{
+  const formData=new FormData()
+     formData.append('course_id', params.course_id)
+     formData.append('teacher_id', params.teacher_id)
+      return $http({
+        url:'/get_all_files_for_admin',
+        method:"post",
+        data:formData
+    })
+}
+
 // 老师下载文件
 export const download=(params:any)=>{
   const formData=new FormData()

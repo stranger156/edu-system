@@ -13,7 +13,11 @@
       </el-table-column>
 
       <!-- 文件名列 (已修正) -->
-      <el-table-column prop="displayName" label="文件名" />
+      <el-table-column prop="displayName" label="文件名">
+      <template #default="{ row }">
+          {{ formatDisplayName(row.displayName) }}
+        </template>
+      </el-table-column>
 
       <!-- 其他列 -->
       <el-table-column prop="size_kb" label="大小" width="120">
@@ -44,7 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-import { get_course_files_for_teacher, download } from '@/utils/api'
+import { get_course_files_for_teacher, download, get_all_files_for_admin } from '@/utils/api'
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElLoading } from 'element-plus'
 import { renderAsync } from 'docx-preview' // <-- 1. 导入 renderAsync
@@ -73,7 +77,7 @@ interface Material {
 
 // 表格数据
 const materials = ref<Material[]>([])
-
+const state = ref('')
 // --- 新增：预览弹窗所需的状态 ---
 const previewDialogVisible = ref(false)
 const previewContainerRef = ref<HTMLDivElement | null>(null)
@@ -82,12 +86,17 @@ const previewContainerRef = ref<HTMLDivElement | null>(null)
 
 onMounted(async () => {
   try {
-    const res = await get_course_files_for_teacher(props.courseId)
-    // 假设您的API在成功时返回 { code: 200, data: { ... } } 结构
-    if (res.code === 200) {
+    state.value = localStorage.getItem('root')
+    let res;
+    if(state.value == '1'){
+      res = await get_course_files_for_teacher(props.courseId)
       materials.value = res.data.courseware
-    } else {
-      ElMessage.error(res.message || '获取文件列表失败')
+    }else{
+      res = await get_all_files_for_admin({
+        'course_id': props.courseId,
+        'teacher_id': props.teacherId
+      })
+      materials.value = res.data.files.courseware
     }
   } catch (error) {
     ElMessage.error('请求文件列表时出错')
@@ -101,6 +110,10 @@ const formatFileSize = (bytes: number) => {
     return bytes + ' KB'
   }
   return (bytes / 1024).toFixed(2) + ' MB'
+}
+
+const formatDisplayName = (displayName: string) => {
+  return displayName + '.docx'
 }
 
 // 下载功能 (保持不变)
