@@ -47,7 +47,7 @@
 import { get_course_files_for_teacher, download } from '@/utils/api'
 import { ref, onMounted, nextTick } from 'vue'
 import { ElMessage, ElLoading } from 'element-plus'
-// import { renderAsync } from 'docx-preview' // <-- 1. 导入 renderAsync
+import { renderAsync } from 'docx-preview' // <-- 1. 导入 renderAsync
 import materialIcon from '@/image/material.png'
 
 const props = defineProps({

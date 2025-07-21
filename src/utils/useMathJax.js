@@ -17,7 +17,7 @@ let mathjaxPromise = null;
         // MathJax 会在加载时寻找这个全局对象
         window.MathJax = {
             tex: {
-                inlineMath: [['\\(', '\\)']],
+                inlineMath:[['\\(', '\\)']],
                 displayMath: [['\\[', '\\]']],
                 packages: { '[+]': ['cases'] }
             },
@@ -68,4 +68,18 @@ export function useMathJax(sourceRef) {
             typeset();
         }
     }, { deep: true, immediate: true });
+}
+
+export async function renderMathJax() {
+    try {
+        // 确保 MathJax 已加载
+        const MathJax = await initializeMathJax();
+        // 等待下一个 DOM 更新周期，确保内容已渲染到页面
+        await nextTick();
+        // 执行排版
+        await MathJax.typesetPromise();
+        console.log('MathJax typesetting complete.');
+    } catch (e) {
+        console.error('MathJax rendering failed:', e);
+    }
 }

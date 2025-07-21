@@ -232,6 +232,14 @@ export const createCourseWithTeacher=(params:any)=>{
 }
 
 // 老师根据练习题ID获取练习题
+export const get_all_exams_for_teacher=()=>{
+      return $http({
+        url:'/get_all_exams_for_teacher',
+        method:"get"
+    })
+}
+
+// 老师根据练习题ID获取练习题
 export const get_all_exams_for_teacher_by_exam=(params:any)=>{
   const formData=new FormData()
      formData.append('exam_id',params)
