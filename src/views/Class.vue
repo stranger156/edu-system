@@ -43,13 +43,14 @@
     </header>
       <!-- 我上的课 -->
     <div style="margin-top: 50px;" v-show="model">
-          <div v-show="!array.length" style="margin-left: 40%;font-size: 30px;">尚未加入课堂</div>
+          <div v-show="!array.length" style="margin-left: 40%;font-size: 30px;">暂无授课课堂</div>
         <div   v-for="item in array" class="block" style="display: flex;">
             <img src="../image/class.jpg" @click="toMore(item.courseID,teacherID)" alt="" style=" cursor: pointer;">
             <div >
  <h1 class="name" @click="toMore(item.courseID,teacherID)">{{ item.courseName }}</h1>
-<div style="margin-top: 20px;"> 创建时间:{{ item. createTime}}</div>
-<div style="margin-top: 10px;">结束时间：{{ item.endTime }}</div>
+ <div style="margin-top: 20px;"> 课程ID: {{ item.courseID}}</div>
+<div style="margin-top: 10px;"> 开课时间: {{ item.createTime}}</div>
+<div style="margin-top: 10px;">结课时间：{{ item.endTime }}</div>
             </div> 
             <div class="learn" @click="toMore(item.courseID,teacherID)">查看详情</div>
         </div>
@@ -61,7 +62,7 @@
             <img src="../image/class.jpg"  alt="">
                 <div >
  <h1 class="name">{{ item.courseName }}</h1>
-<div style="margin-top: 20px;">授课老师: 未分配</div>
+<div style="margin-top: 20px;">课程ID: {{ item.courseID }}</div>
                 </div>
  <div class="learn" style="margin-left: 600px;" @click="addCourse(item.courseID,item.courseName)">添加授课</div>
             </div>
@@ -103,6 +104,7 @@ const array=ref([])
 const state=ref('0')
 const tableData = ref([])
 const teacherID=ref()
+const teacherName = ref()
 const toMore=(courseID,teacherID)=>{
   router.push({
     name: 'DetailPage',  // 使用路由名称
@@ -114,7 +116,8 @@ const toMore=(courseID,teacherID)=>{
 }
 // 添加授课
 const addCourse=(courseId,courseName)=>{
-     ElMessageBox.alert(`<h4>课程名称：${courseName}</h4>`, '课程信息确认框', {
+     ElMessageBox.alert(`<h4>课程ID：${courseId}</h4><br><h4>课程名称：${courseName}</h4><br><h4>授课教师ID：${teacherID.value}</h4>
+     <br><h4>授课教师：${teacherName.value}</h4>`, '授课信息确认框', {
     dangerouslyUseHTMLString: true,
     confirmButtonText: '确认添加授课',
     callback: (action) => {
@@ -181,6 +184,7 @@ getNotStudentLectures().then(res=>{
         getSingleUserInfo().then(res=>{
             if(res.code===200){
                 teacherID.value=res.data.ID
+                teacherName.value = res.data.userName
             }
         })
         getTeacherLectures().then(res=>{
@@ -190,6 +194,7 @@ getNotStudentLectures().then(res=>{
         })
         getNotTeacherLectures().then(res=>{
             if(res.code===200){
+                console.log(res)
                  lecture.value=res.lectures
             }
         })
