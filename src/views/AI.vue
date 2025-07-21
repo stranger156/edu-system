@@ -1,4 +1,3 @@
-
 <template>
   <div class="common-layout">
     <el-container style="height: 100%;">

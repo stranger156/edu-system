@@ -305,6 +305,17 @@ export const submitExamine=(params:any)=>{
     })
 }
 
+//老师提交批改
+export const submitCorrect=(params:any)=>{
+    const jsonData = JSON.parse(JSON.stringify(params));
+      return $http({
+        url:'/grade_submission',
+        method:"post",
+        headers: { "Content-Type": "application/json" },
+         data: jsonData
+    })
+}
+
 // 老师发布通知
 export const publishNotice=(params:any)=>{
   const formData=new FormData()
@@ -361,6 +372,22 @@ export const get_course_files_for_teacher=(params:any)=>{
     })
 }
 
+// 老师根据练习ID获取提交结果
+export const get_exam_submissions=(params:any)=>{
+      return $http({
+        url:`/get_exam_submissions/${params}`,
+        method:"get",
+    })
+}
+
+// 老师根据提交ID获取提交内容
+export const get_submission_details=(params:any)=>{
+      return $http({
+        url:`/get_submission_details/${params}`,
+        method:"get",
+    })
+}
+
 // 学生和管理员根据老师ID和课程ID获取文件列表
 export const get_all_files_for_admin=(params:any)=>{
   const formData=new FormData()
@@ -378,6 +405,7 @@ export const download=(params:any)=>{
   const formData=new FormData()
      formData.append('course_id', params.course_id)
      formData.append('filename', params.filename)
+     formData.append('teacher_id', params.teacher_id)
       return $http({
         url:'/download',
         method:"post",

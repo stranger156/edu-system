@@ -15,6 +15,8 @@ import UserDetail from '@/views/UserDetail.vue'
 import ExamDetail from '@/views/ExamDetail.vue'
 import ExamineDetail from '@/views/ExamineDetail.vue'
 import AIexamine from '@/views/AIexamine.vue'
+import Correct from '@/views/Correct.vue'
+import CorrectDetail from '@/views/CorrectDetail.vue'
 
 
 const router = createRouter({
@@ -115,6 +117,14 @@ const router = createRouter({
         path: '/detail/:courseId/:teacherId/:id/examineDetail', // 预定义参数名 :id
         name: 'examineDetail',
         component: ExamineDetail
+  },{
+        path: '/detail/:courseId/:teacherId/:id/correct', // 预定义参数名 :id
+        name: 'correct',
+        component: Correct
+  },{
+        path: '/detail/:courseId/:teacherId/:id/correct/:submissionID/:status/correctDetail', // 预定义参数名 :id
+        name: 'correctDetail',
+        component: CorrectDetail
   }
     ]
   }
