@@ -23,61 +23,54 @@
   </div>
 </template>
 
-<script  setup >
+<script setup>
 import { getAllCourses, getCourseByStudent, getTeacherLectures } from '@/utils/api';
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue'; // 1. 引入 watch
 import { useUserStore } from '@/stores/token';
-import { storeToRefs } from 'pinia'; // 导入 storeToRefs 以保持响应性
+import { storeToRefs } from 'pinia';
 
 // --- 1. 初始化 Store 和响应式数据 ---
-
-// a. 获取 user store 的实例
 const userStore = useUserStore();
-
-// b. **关键**: 使用 storeToRefs 来获取响应式的 state
-//    这样，当 store 中的 user.root 变化时，我们的组件也能感知到。
 const { user } = storeToRefs(userStore);
-const isLoading = ref(true); // 新增一个加载状态
-const array=ref([])
+const isLoading = ref(true);
+const array = ref([]);
 
+// --- 2. 计算属性 (无需修改) ---
 const pageTitle = computed(() => {
-  switch (user.value.root) {
-    case '0': return '我学的课';
-    case '1': return '我教的课';
-    case '2': return '所有课程';
-    default: return '课程列表';
-  }
+  // 使用宽松比较 `==` 来避免数字和字符串类型不匹配的问题
+  if (user.value.root == '0') return '我学的课';
+  if (user.value.root == '1') return '我教的课';
+  if (user.value.root == '2') return '所有课程';
+  return '课程列表';
 });
 
 const emptyMessage = computed(() => {
-  switch (user.value.root) {
-    case '0': return '您还没有选择任何课程';
-    case '1': return '您还没有创建任何课程';
-    case '2': return '系统中还没有任何课程';
-    default: return '暂无课程';
-  }
+  if (user.value.root == '0') return '您还没有选择任何课程';
+  if (user.value.root == '1') return '您还没有创建任何课程';
+  if (user.value.root == '2') return '系统中还没有任何课程';
+  return '暂无课程';
 });
 
-onMounted(() => {
-  // 确保 user.root 有值
-  if (!user.value.root) {
-    console.warn("User root is not available on mount. Cannot fetch courses.");
-    isLoading.value = false;
+// --- 3. 核心数据获取逻辑 (封装成一个函数) ---
+const fetchCourses = () => {
+  // 如果 root 值不存在，则不执行任何操作
+  if (user.value.root === null || user.value.root === undefined) {
     return;
   }
+  
+  isLoading.value = true;
+  array.value = []; // 在请求前清空旧数据
 
   let apiCall;
 
-  // 根据响应式的 user.value.root 来决定调用哪个 API
-  if (user.value.root === '0') {
+  // 根据 root 值决定调用哪个 API
+  if (user.value.root == '0') {
     apiCall = getCourseByStudent();
-  } else if (user.value.root === '1') {
-    // 假设 getStudentLectures 是获取老师所教课程的接口
+  } else if (user.value.root == '1') {
     apiCall = getTeacherLectures();
-  } else if (user.value.root === '2') {
+  } else if (user.value.root == '2') {
     apiCall = getAllCourses();
   } else {
-    // 如果 root 值无效，直接结束
     console.error(`Invalid user root: ${user.value.root}`);
     isLoading.value = false;
     return;
@@ -85,21 +78,34 @@ onMounted(() => {
 
   // 执行 API 调用
   apiCall.then(res => {
-    // 统一处理可能的数据结构差异
-    const coursesList = res.data || res.courses || res.lectures ||[];
-    console.log(coursesList)
+    const coursesList = res.data || res.courses || res.lectures || [];
     if (Array.isArray(coursesList)) {
       array.value = coursesList;
     } else {
-      console.warn("API response `data` or `courses` is not an array:", res);
+      console.warn("API response is not an array:", res);
     }
   }).catch(error => {
     console.error("Failed to fetch courses:", error);
-    array.value = []; // 出错时清空数组
   }).finally(() => {
-    isLoading.value = false; // 结束加载状态
+    isLoading.value = false;
   });
-});
+};
+
+// --- 4. 使用 watch 替代 onMounted 的主要职责 ---
+// 侦听 user.root 的变化
+watch(
+  () => user.value.root, // 我们要侦听的目标
+  (newRoot, oldRoot) => {
+    // 只有当 root 值真实存在时才触发数据获取
+    if (newRoot !== null && newRoot !== undefined) {
+      console.log(`User root changed from ${oldRoot} to ${newRoot}. Fetching courses...`);
+      fetchCourses();
+    }
+  },
+  {
+    immediate: true // <-- 这是关键！它让 watch 在组件初始化时立即执行一次处理函数
+  }
+);
 </script>
 
 <style scoped>

@@ -52,7 +52,7 @@ import { login, register } from "@/utils/api.ts";
 import { ElMessage } from 'element-plus'  // 引入 ElMessage
 import router from "@/router";
 import { useUserStore } from "@/stores/token";
-const user=useUserStore()
+const userStore=useUserStore()
 const loginForm=ref({
     name:'',
 	phone:"",
@@ -74,42 +74,77 @@ const options=[
   }
 ]
 const iflogin=ref(true)
-const log=()=>{
-if(iflogin.value){
-login(loginForm.value).then(res=>{
-		if(res.code===200){
-          user.setLoginInfo(res.token,loginForm.value.root)
-           router.push('home')
-        }
-	})
-}else{
-    if(loginForm.value.name===null||loginForm.value.password===null
-    ||loginForm.value.newpassword===null||loginForm.value.phone===null||loginForm.value.root===null){
-         ElMessage({
-    message: '注册信息输入不完整',
-    type: 'error',
-  })
-  return;
-    }
-    if(loginForm.value.password!==loginForm.value.newpassword){
-         ElMessage({
-    message: '密码错误',
-    type: 'error',
-  })
-  return;
-    }
-register(loginForm.value).then(res=>{
-    if(res.code===200){
-         ElMessage({
-    message: '新用户注册成功',
-    type: 'success',
-  })
-    }
-})
-}
-	
+const isLoading = ref(false);
+const log = async () => {
+    if (isLoading.value) return; // 如果正在提交，则阻止重复执行
 
-}
+    isLoading.value = true; // 开始提交，设置加载状态
+
+    try {
+        if (iflogin.value) {
+            // --- A. 登录逻辑 ---
+
+            // a. 前端校验
+            if (!loginForm.value.phone || !loginForm.value.password || loginForm.value.root === '') {
+                ElMessage.error('手机号、密码和用户类型不能为空');
+                return; // 结束函数执行
+            }
+
+            // b. 调用 API，并使用 await 等待其完成
+            const res = await login(loginForm.value);
+
+            // c. 处理 API 响应
+            if (res.code === 200) {
+                ElMessage.success('登录成功！');
+
+                // 关键步骤：在数据完全设置好之后再跳转
+                userStore.setLoginInfo(res.token, String(loginForm.value.root)); // 确保存入的是字符串
+
+                // 跳转到主页或仪表盘
+                router.push('/home');
+            } else {
+                // 由后端返回的业务错误，如“密码错误”
+                ElMessage.error(res.message || '登录失败，请检查您的凭据');
+            }
+
+        } else {
+            // --- B. 注册逻辑 ---
+
+            // a. 前端校验
+            if (!loginForm.value.name || !loginForm.value.phone || !loginForm.value.password || !loginForm.value.newpassword || loginForm.value.root === '') {
+                ElMessage.error('所有注册信息均不能为空');
+                return;
+            }
+            if (loginForm.value.password !== loginForm.value.newpassword) {
+                ElMessage.error('两次输入的密码不一致');
+                return;
+            }
+
+            // b. 调用 API
+            const res = await register(loginForm.value);
+
+            // c. 处理响应
+            if (res.code === 200) {
+                ElMessage.success('新用户注册成功！请登录。');
+                // 注册成功后，自动切换回登录界面，并清空部分表单
+                iflogin.value = true;
+                loginForm.value.newpassword = ''; // 清空确认密码
+            } else {
+                // 由后端返回的业务错误，如“手机号已被注册”
+                ElMessage.error(res.message || '注册失败，请稍后重试');
+            }
+        }
+    } catch (error) {
+        // --- C. 统一的错误处理 ---
+        // 捕获所有 await 过程中可能发生的异常，如网络错误、服务器崩溃等
+        console.error("Request failed:", error);
+        ElMessage.error('请求失败，请检查您的网络连接或联系管理员');
+
+    } finally {
+        // --- D. 无论成功还是失败，最后都结束加载状态 ---
+        isLoading.value = false;
+    }
+};
 </script>
 <style scoped>
 .out{
