@@ -51,7 +51,6 @@
 import { getTest, submitExamine } from '@/utils/api';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import 'katex/dist/katex.min.css';
 import { useMathJax } from '@/utils/useMathJax';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import router from '@/router';

@@ -1,32 +1,46 @@
 <template>
-  <div class="materials-container">
-    <div v-for="material in materials" :key="material.filename" class="material-card">
-      <div class="material-info">
-        <div class="file-icon">
-          <DocumentIcon v-if="material.type === 'doc'" class="w-8 h-8" />
-          <ArchiveIcon v-else class="w-8 h-8" />
-        </div>
-        <div class="file-details">
-          <h3 class="filename">{{ material.filename }}</h3>
-          <p class="upload-info">上传时间：{{ material.uploadTime }}</p>
-        </div>
-      </div>
-      <div class="action-buttons">
-        <button @click="downloadFile(material.filename)" class="download-btn">
-          下载文档
-        </button>
-        <button @click="previewFile(material.filename)" class="preview-btn">
-          在线预览
-        </button>
-      </div>
-    </div>
+  <div class="materials-table">
+    <el-table :data="materials" style="width: 100%" border>
+      <!-- 新增图片列 -->
+      <el-table-column label="" width="80">
+        <template #default="{ row }">
+          <img 
+            :src="set(row.iconPath)" 
+            style="width: 100%; height: 100%;"
+            alt="文件图标"
+          />
+        </template>
+      </el-table-column>
+
+      <!-- 原有文件名列 -->
+      <el-table-column prop="displayName" label="文件名">
+        <template #default="{ row }">
+          {{ formatDisplayName(row.displayName) }}
+        </template>
+      </el-table-column>
+
+      <!-- 其他列保持不变 -->
+      <el-table-column prop="size_kb" label="大小" width="120">
+        <template #default="{ row }">
+          {{ formatFileSize(row.size_kb) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="modified_time" label="创建时间" width="180" />
+      <el-table-column label="操作" width="180">
+        <template #default="{ row }">
+          <el-button size="small" @click="handleDownload(row)">下载</el-button>
+          <el-button size="small" type="primary" @click="handlePreview(row)">预览</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
 <script lang="ts" setup>
+import {get_course_files_for_teacher, download} from '@/utils/api'
 import { ref, onMounted } from 'vue'
-import { DocumentIcon, ArchiveIcon } from '@heroicons/vue/24/outline'
-import axios from 'axios'
+import { ElMessage } from 'element-plus'
+import materialIcon from '@/image/material.png'
 
 const props = defineProps({
   courseId: {
@@ -39,117 +53,109 @@ const props = defineProps({
   }
 })
 
+// 表格数据类型定义
 interface Material {
+  iconPath: string
+  displayName: string
   filename: string
-  type: 'doc' | 'other'
-  uploadTime: string
-  // 根据实际接口返回字段补充
+  size_kb: number
+  modified_time: string
 }
 
+
+// 表格数据
 const materials = ref<Material[]>([])
 
-// 获取资料列表
-const fetchMaterials = async () => {
-  try {
-    const response = await axios.get('/api/materials', {
-      params: {
-        courseId: props.courseId,
-        teacherId: props.teacherId
-      }
-    })
-    materials.value = response.data.map((item: any) => ({
-      filename: item.file_name,
-      type: item.file_type === 'doc' ? 'doc' : 'other',
-      uploadTime: new Date(item.upload_time).toLocaleString()
-    }))
-  } catch (error) {
-    console.error('获取资料失败:', error)
-  }
+onMounted(async () => {
+  get_course_files_for_teacher(props.courseId).then(res => {
+    materials.value = res.data.courseware
+  })
+})
+
+// 文件大小格式化
+const formatFileSize = (bytes: number) => {
+  return bytes + 'KB'
 }
 
-// 文件下载
-const downloadFile = async (filename: string) => {
+const formatDisplayName = (displayName: string) => {
+  return displayName + '.doc'
+}
+
+const set = (iconPath: string) => {
+  return materialIcon 
+}
+
+const handleDownload = async (row: Material) => {
   try {
-    const response = await axios.get('/api/download', {
-      params: { filename },
-      responseType: 'blob'
+    // 调用下载接口
+    const response = await download({
+      course_id: props.courseId,
+      filename: row.filename
     })
     
-    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const downloadUrl = window.URL.createObjectURL(response)
+    // 创建临时链接
     const link = document.createElement('a')
-    link.href = url
-    link.setAttribute('download', filename)
+    link.href = downloadUrl
+    link.setAttribute('download', row.filename)
     document.body.appendChild(link)
     link.click()
-    link.remove()
-  } catch (error) {
-    console.error('文件下载失败:', error)
-  }
-}
-
-// 文件预览
-const previewFile = async (filename: string) => {
-  try {
-    // 使用Google Docs Viewer实现预览
-    const previewUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
-      `${window.location.origin}/api/download?filename=${filename}`
-    )}&embedded=true`
     
-    window.open(previewUrl, '_blank', 'width=800,height=600')
+    // 清理资源
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(downloadUrl)
+    
+    ElMessage.success('下载开始')
   } catch (error) {
-    console.error('文件预览失败:', error)
+    ElMessage.error('下载失败，请稍后重试')
+    console.error('下载错误:', error)
   }
 }
-
-onMounted(() => {
-  fetchMaterials()
-})
+ 
+// 修改后的预览处理
+const handlePreview = async (row: Material) => {
+  try {
+    // 调用下载接口获取文件流
+    const response = await download({
+      course_id: props.courseId,
+      filename: row.filename
+    })
+ 
+    const previewUrl = window.URL.createObjectURL(response)
+    
+    // 打开新窗口预览
+    const newWindow = window.open()
+    if (newWindow) {
+      newWindow.location.href = previewUrl
+    } else {
+      ElMessage.warning('请允许弹出窗口以进行预览')
+    }
+    
+    // 延迟释放URL（根据浏览器兼容性调整）
+    setTimeout(() => {
+      window.URL.revokeObjectURL(previewUrl)
+    }, 1000 * 60) // 1分钟后释放
+    
+  } catch (error) {
+    ElMessage.error('预览失败，请检查文件格式')
+    console.error('预览错误:', error)
+  }
+}
 </script>
 
 <style scoped>
-.materials-container {
-  @apply grid gap-4 p-4;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+.materials-table {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
 }
 
-.material-card {
-  @apply bg-white rounded-lg shadow-md p-4 flex flex-col justify-between;
-  transition: transform 0.2s;
+.el-table {
+  margin-top: 20px;
 }
 
-.material-card:hover {
-  @apply transform scale-102;
-}
-
-.material-info {
-  @apply flex items-center gap-4 mb-4;
-}
-
-.file-icon {
-  @apply text-blue-500;
-}
-
-.file-details {
-  @apply flex-1;
-}
-
-.filename {
-  @apply text-lg font-medium text-gray-800 truncate;
-}
-
-.upload-info {
-  @apply text-sm text-gray-500;
-}
-
-.action-buttons {
-  @apply flex gap-2;
-}
-
-.download-btn {
-  @apply px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors;
-}
-
-.preview-btn {
-  @apply px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors;
+.el-button {
+  margin: 0 4px;
 }
 </style>

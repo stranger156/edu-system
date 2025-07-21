@@ -24,6 +24,7 @@ declare module 'vue' {
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    ElTag: typeof import('element-plus/es')['ElTag']
     FishEffect: typeof import('./src/components/FishEffect.vue')['default']
     Main: typeof import('./src/components/Main.vue')['default']
     Message: typeof import('./src/components/Message.vue')['default']
