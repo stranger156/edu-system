@@ -1,4 +1,6 @@
 <template>
+   <div style="padding: 10px;font-size: 25px;">学生表</div>
+    <hr>
   <el-table :data="filterStudentData" style="width: 100%">
     <el-table-column label="学生ID" prop="ID" />
     <el-table-column label="姓名" prop="name" />
@@ -10,6 +12,8 @@
       </template>
     </el-table-column>
   </el-table>
+   <div style="padding: 10px;font-size: 25px;margin-top: 20px;">教师表</div>
+    <hr>
   <el-table :data="filterTeacherData" style="width: 100%">
     <el-table-column label="老师ID" prop="ID" />
     <el-table-column label="姓名" prop="name" />

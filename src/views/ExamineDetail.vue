@@ -1,7 +1,8 @@
 <template>
   <div style="padding: 10px;" >
     <div class="notification-content-card">
-      <div style="text-align: center; font-size: 30px; padding: 20px;">{{ title }}</div>
+        <div style=" margin-left: 30px;"><el-icon :size="30" @click="router.back()"><Back /></el-icon></div>
+      <div style="text-align: center; font-size: 30px; padding: 20px;padding-top: 10px;">{{ title }}</div>
       <div style="text-align: center;">
         <span style="margin-right: 100px; color: dimgray;">开始时间：{{ start }}</span>
         <span style="margin-left: 100px; color: dimgray;">截止时间：{{ end }}</span>
