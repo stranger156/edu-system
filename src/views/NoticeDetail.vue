@@ -19,7 +19,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script  setup>
 import {getNoticeDetailByNoticeID} from '@/utils/api'
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';

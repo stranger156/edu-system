@@ -4,7 +4,7 @@ import { watch, nextTick } from 'vue';
 let isMathJaxLoaded = false;
 let mathjaxPromise = null;
 
-function initializeMathJax() {
+ function initializeMathJax() {
     if (isMathJaxLoaded) {
         return mathjaxPromise;
     }

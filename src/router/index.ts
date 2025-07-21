@@ -13,6 +13,7 @@ import AI from '@/views/AI.vue'
 import Examine from '@/views/examine.vue'
 import UserDetail from '@/views/UserDetail.vue'
 import ExamDetail from '@/views/ExamDetail.vue'
+import ExamineDetail from '@/views/ExamineDetail.vue'
 
 
 const router = createRouter({
@@ -104,6 +105,10 @@ const router = createRouter({
         path: '/detail/:courseId/:teacherId/:id/examDetail', // 预定义参数名 :id
         name: 'examDetail',
         component: ExamDetail
+  }, {
+        path: '/detail/:courseId/:teacherId/:id/examineDetail', // 预定义参数名 :id
+        name: 'examineDetail',
+        component: ExamineDetail
   }
     ]
   }

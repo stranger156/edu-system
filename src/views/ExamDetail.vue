@@ -48,7 +48,6 @@ import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useMathJax } from '@/utils/useMathJax';
 
-
 const route = useRoute();
 const router = useRouter();
 const noticeID = route.params.id;

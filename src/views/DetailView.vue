@@ -81,7 +81,17 @@ const toHome=()=>{
 watch(
   () => route.name,
   (newPath, oldPath) => {
+    console.log(newPath)
+    if(newPath=='detail'){
+      title.value='courseMessage'
+      return
+    }
+     if(newPath=='examineDetail'){
+    title.value='examine'
+    return
+   }
   title.value=newPath
+  
   }
 );
 const lecture={
