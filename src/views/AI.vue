@@ -1,4 +1,3 @@
-
 <template>
   <div class="common-layout">
     <el-container style="height: 100%;">
@@ -93,39 +92,6 @@ async function setScrollToBottom() {
 	  chat.scrollTop = chat.scrollHeight
 }
 
-// 发送提问
-
-// const compiledMarkdown = (dialog) => {
-//   // 安全检查：如果输入为空或不是字符串，则直接返回空字符串
-//   if (!dialog || typeof dialog !== 'string') {
-//     return '';
-//   }
-
-//   let processedText = dialog;
-
-//   processedText = processedText.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
-
-//   // 最后，将完全清理干净的文本交给 marked.js 进行 HTML 转换
-//   return marked(processedText);
-// };
-
-// const cleanAndCompile = (dialog) => {
-//     if (!dialog || typeof dialog !== 'string') return '';
-    
-//     // 1. 修复 LaTeX 格式
-//     let fixedDialog = dialog.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
-    
-//     // 2. 转换为 HTML
-//     return marked(fixedDialog);
-// };
-
-
-// // 监听 messageList 的变化，当它更新时，执行滚动和数学公式排版
-// watch(messageList, () => {
-//   setScrollToBottom();
-//   renderMathJax(); // <--- 在数据更新后调用排版
-// }, { deep: true }); // 使用 deep watch 来监听数组内部的变化
-
 const sendMsg=async()=>{
     if(input.value.trim().length===0){
         input.value=''
@@ -175,41 +141,6 @@ const sendMsg=async()=>{
     })
  }
 }
-// 发送提问
-// const sendMsg = async () => {
-//   if (input.value.trim().length === 0) {
-//     input.value = '';
-//     return;
-//   }
-//   let question = input.value.trim();
-//   messageList.value.push({
-//     content: question,
-//     role: 'user'
-//   });
-//   input.value = '';
-//   // setScrollToBottom() 和 renderMathJax() 将由 watch 触发
-
-//   const data = await sendQuestion({
-//     question: question,
-//     sessionid: sessionid.value,
-//     chatid: chatId.value,
-//     courseid: props.courseId
-//   });
-
-//   if (data) {
-//     getSessionsByID(chatId.value, sessionid.value).then(res => {
-//       const processedMessages = res.data.messages.map(msg => {
-//             return {
-//                 ...msg, // 复制原始消息对象的所有属性
-//                 content: cleanAndCompile(msg.content) // 用一个统一的函数处理内容
-//             };
-//         });
-//         messageList.value = processedMessages;
-//     });
-//   }
-// };
-
-
 
 onMounted(async () => {
   state.value = localStorage.getItem('root');
