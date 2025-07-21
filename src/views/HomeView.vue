@@ -70,6 +70,9 @@ title.value='课程'
  if(newPath==='message'){
 title.value='通知'
  }
+ if(newPath==='userdetail'){
+  title.value='用户详情'
+ }
   }
 );
 

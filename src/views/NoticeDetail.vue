@@ -1,5 +1,5 @@
 <template>
-  <div class="notification-container">
+  <div class="notification-container" >
     <button class='returnButton' @click="returnBack">返回</button>
     <div class="notification-header-card">
       <h2 class="notification-subject">{{ notification.title }}</h2>

@@ -1,7 +1,7 @@
 <template>
   <div class="notification-list">
     <div v-if="!notices || notices.length === 0">暂无作业</div>
-    <div v-for="item in notices" :key="index" class="notification-item" @click="viewDetails(item.exam_id)">
+    <div v-for="(item,index) in notices" :key="index" class="notification-item" @click="viewDetails(item.exam_id)">
       <img src="../image//homework.png" alt="作业图标" class="notification-icon" />
       <div class="notification-content">
         <div class="notification-title">{{ item.exam_title }}</div>

@@ -18,7 +18,7 @@
             </div>
         </el-header>
         <el-main style="height: calc(100vh - 250px);" class="hide-scrollbar" id="chat"> 
-           <div style="margin-bottom: 10px;"
+           <div style="margin-bottom: 20px;"
            v-for="item in messageList" 
            :class="item.role==='assistant'?'left':'right'"
           >
@@ -54,6 +54,7 @@ import { get_chatID, getChatIDByStudentWIthID, getSessions, getSessionsByID, sen
 import { onBeforeMount, onMounted, ref } from 'vue';
 import {marked} from 'marked';
 import { nextTick } from 'vue';
+import { useMathJax } from '@/utils/useMathJax';
 const chatId=ref()
 const state=ref()
 const history=ref([])
@@ -74,7 +75,9 @@ const props = defineProps({
   }
 })
 const compiledMarkdown=(dialog)=>{
-      return marked(dialog);
+      let string=marked(dialog)
+      useMathJax(string)
+      return string;
     }
     	/*内容显示过多时自动滑动*/
 	async function setScrollToBottom() {
@@ -96,33 +99,23 @@ const sendMsg=async()=>{
       input.value=''
        setScrollToBottom()
    
-  const { data }= await sendQuestion({
-      question: question.value,
+  const  data = await sendQuestion({
+      question: question,
       sessionid: sessionid.value,
       chatid: chatId.value,
       courseid: props.courseId
     });
   // 手动解析分块响应
-    const lines = data.split('\n');
-    let fullResponse = '';
-    
-    lines.forEach(line => {
-      if (line.trim().startsWith('data: ')) {
-        try {
-          const json = JSON.parse(line.replace('data: ', ''));
-          if (json.type === 'content') {
-            fullResponse += json.data;
-          }
-        } catch (e) {
-          console.error('解析响应失败:', line);
-        }
-      }
-    });
-    
-    console.log('完整响应:', fullResponse);
+ if(data){
+   getSessionsByID(chatId.value,sessionid.value).then(res=>{
+        messageList.value=res.data.messages
+        console.log(messageList.value)
+         setScrollToBottom()
+    })
+ }
 
 }
-onBeforeMount(async()=>{
+onMounted(async()=>{
     state.value=localStorage.getItem('root')
     // 学生用户获取聊天助手
     if(state.value==='0'){
@@ -168,7 +161,7 @@ onBeforeMount(async()=>{
     padding-left: 26px;
     color: #3f3f3f;
     border-radius: 12px;
-    max-width: 80%;
+    max-width: 70%;
     font-size: 16px;
 }
 .right{

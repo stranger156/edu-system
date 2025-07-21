@@ -42,7 +42,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
+<script  setup>
 import { get_all_exams_for_teacher_by_exam, get_exam_for_student } from '@/utils/api'
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -52,12 +52,12 @@ const route = useRoute();
 const router = useRouter();
 const noticeID = route.params.id;
 const state = ref('')
-
+const notification = ref({})
 // 新增题型顺序定义
 const questionTypes = ['选择题', '判断题', '简答题'];
 
 // 新增题目处理方法
-const getQuestionsByType = (type: string) => {
+const getQuestionsByType = (type) => {
     let content = {}
   if(state.value == '0'){
     content = notification.value?.exam_content || {};
@@ -78,7 +78,6 @@ const getQuestionsByType = (type: string) => {
 };
 
 // 模拟通知数据
-const notification = ref<any>({});
 
 onMounted(() => {
     state.value = localStorage.getItem('root');
