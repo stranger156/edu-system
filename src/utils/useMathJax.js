@@ -4,7 +4,7 @@ import { watch, nextTick } from 'vue';
 let isMathJaxLoaded = false;
 let mathjaxPromise = null;
 
-function initializeMathJax() {
+ function initializeMathJax() {
     if (isMathJaxLoaded) {
         return mathjaxPromise;
     }
@@ -38,7 +38,7 @@ function initializeMathJax() {
 
         // **步骤 3: 动态加载脚本**
         const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js';
         script.async = true;
         script.onerror = reject;
         document.head.appendChild(script);

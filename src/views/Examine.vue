@@ -1,7 +1,8 @@
 <template>
-<div>
-    <div style="padding: 10px;font-size: 20px;">练习题</div>
-    <div v-for="item in testList" class="test" @click="toDetail(item.练习题ID)">
+<div style="padding: 10px;">
+    <div style="padding: 10px;font-size: 25px;">练习题</div>
+    <hr>
+    <div v-for="item in testList" class="test" @click="toDetail(item)">
       <img src="../image/test.png" alt="" class="image">
       <div class="mid">
         <h3> {{ item.练习题标题 }}</h3>
@@ -29,8 +30,11 @@ defineProps({
     required: true
   }
 })
-const toDetail=(id)=>{
-  router.push({ name: 'examineDetail', params: { id:id } });
+const toDetail=(item)=>{
+  if(item.status==='已完成'){
+    return
+  }
+  router.push({ name: 'examineDetail', params: { id:item.练习题ID} });
 }
 onMounted(()=>{
     getExam().then(res=>{

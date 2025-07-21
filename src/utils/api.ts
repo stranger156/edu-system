@@ -261,6 +261,16 @@ export const get_exam_for_student=(params:any)=>{
         method:"get",
     })
 }
+//学生提交答案
+export const submitExamine=(params:any)=>{
+    const jsonData = JSON.parse(JSON.stringify(params));
+      return $http({
+        url:'/student_submit',
+        method:"post",
+        headers: { "Content-Type": "application/json" },
+         data: jsonData
+    })
+}
 
 // 老师发布通知
 export const publishNotice=(params:any)=>{
@@ -345,3 +355,7 @@ export const getAllTeachers=()=>{
         method:"get",
     })
 }
+function cloneDeep(params: any) {
+    throw new Error("Function not implemented.")
+}
+
