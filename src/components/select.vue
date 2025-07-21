@@ -2,28 +2,50 @@
   <div class="list-wrapper">
     <div class="all">
       <div class="list-header">
+        <!-- 标题会自动根据用户角色变化 -->
         <div>{{ pageTitle }}</div>
         <hr>
       </div>
       
+      <!-- 滚动内容区 -->
       <div class="scrollable-content">
-        <div v-if="!isLoading && array.length > 0">
-          <div v-for="(item, index) in array" :key="item.id || index" class="cla">
-            <div v-if="user.root === '0'">...</div>
-            <div v-else-if="user.root === '1'" class="teacher-item">
-              <div class="notice-header">
-                <span class="notice-title">{{ item.title }}</span>
-                <span class="notice-course">{{ item.courseName }}</span>
-              </div>
-              <div class="notice-content">{{ item.content }}</div>
-            </div>
-            <div v-else-if="user.root === '2'">...</div>
-          </div>
+        <!-- 加载中的状态 -->
+        <div v-if="isLoading" class="loading-state">
+          正在加载...
         </div>
         
-        <div v-if="isLoading" class="loading-state">正在加载...</div>
+        <!-- 加载完成但无数据的状态 -->
         <div v-else-if="array.length === 0" class="empty-state">
           {{ emptyMessage }}
+        </div>
+        
+        <!-- 成功加载且有数据时，显示列表 -->
+        <div v-else>
+          <!-- 使用 v-for 循环渲染数组中的每一项 -->
+          <!-- 注意：我们现在在循环外部处理权限，内部直接渲染 -->
+          <div v-for="item in array" :key="item.id" class="cla">
+
+            <!-- 模板 A: 用于显示通知 (学生或教师视图) -->
+            <!-- 我们使用 'title' in item 来判断当前项是否为通知 -->
+            <div v-if="'title' in item" class="notice-item">
+              <div class="notice-header">
+                <span class="notice-title">{{ item.title }}</span>
+                <span class="notice-course">来自: {{ item.courseName }}</span>
+              </div>
+              <div class="notice-content">{{ item.content }}</div>
+              <div class="notice-footer">
+                <span class="teacher-info">发布人: {{ item.teacherName }}</span>
+                <span class="publish-time">{{ item.publishTime }}</span>
+              </div>
+            </div>
+
+            <!-- 模板 B: 用于显示课程 (管理员视图) -->
+            <!-- 使用 'courseName' in item 且没有 'title' 来判断 -->
+            <div v-else-if="'courseName' in item" class="course-item">
+              {{ item.courseName }}
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
@@ -31,7 +53,7 @@
 </template>
 
 <script lang="ts" setup>
-import { getAllCourses, getCourseByStudent, getAllNoticesByTeacher } from '@/utils/api';
+import { getAllCourses, getAllNoticesByStudent, getAllNoticesByTeacher } from '@/utils/api';
 import { ref, computed, watch } from 'vue'; // 1. 引入 watch
 import { useUserStore } from '@/stores/token';
 import { storeToRefs } from 'pinia';
@@ -62,7 +84,7 @@ const isLoading = ref(true);
 // --- 3. 计算属性 (无需修改，但使用宽松比较更安全) ---
 const pageTitle = computed(() => {
   switch (String(user.value.root)) {
-    case '0': return '我学的课';
+    case '0': return '通知区';
     case '1': return '通知区';
     case '2': return '所有课程';
     default: return '列表';
@@ -71,7 +93,7 @@ const pageTitle = computed(() => {
 
 const emptyMessage = computed(() => {
   switch (String(user.value.root)) {
-    case '0': return '您还没有选择任何课程';
+    case '0': return '您还没有收到任何通知';
     case '1': return '您还没有收到任何通知';
     case '2': return '系统中还没有任何课程';
     default: return '暂无内容';
@@ -82,8 +104,17 @@ const emptyMessage = computed(() => {
 // 将每个角色的数据获取逻辑配置化，便于维护和扩展
 const roleStrategies = {
   '0': { // 学生
-    apiCall: getCourseByStudent,
-    dataProcessor: (res: any): Course[] => res?.courses || []
+    apiCall: getAllNoticesByStudent,
+    dataProcessor: (res: any): Notice[] => {
+      // 健壮地处理对象到数组的转换
+      if (res && typeof res.notices === 'object' && res.notices !== null) {
+        return Object.entries(res.notices).map(([id, notice]: [string, any]) => ({
+          id: id,
+          ...notice
+        })).sort((a, b) => new Date(b.publishTime).getTime() - new Date(a.publishTime).getTime()); // 按时间降序排序
+      }
+      return [];
+    }
   },
   '1': { // 教师
     apiCall: getAllNoticesByTeacher,
@@ -153,41 +184,55 @@ watch(
   height: 100%; 
 }
 
+/* --- 1. 通用布局样式 (适用于所有页面) --- */
 .all {
   width: 100%;
   height: 100%;
-  padding: 10px;
+  padding: 20px;
   border: 2px solid rgb(39, 155, 194);
-  border-radius: 5px;
-  box-sizing: border-box; 
-
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
 }
 
 .list-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
   flex-shrink: 0;
 }
 
 .scrollable-content {
   flex-grow: 1;
   overflow-y: auto;
-  padding-right: 5px; 
-  min-height: 0;
+  padding-top: 15px;
 }
 
-
-.cla {
-  margin-top: 5px;
-  background-color: #cdeef4;
-  border-radius: 5px;
-  padding: 10px;
-  cursor: pointer;
-}
 .loading-state, .empty-state {
   text-align: center;
+  padding-top: 50px;
+  font-size: 16px;
   color: #888;
-  margin-top: 20px;
+}
+
+/* --- 2. 通用卡片样式 (适用于所有列表项) --- */
+.cla {
+  margin-bottom: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.cla:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .teacher-item {

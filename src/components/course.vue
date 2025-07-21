@@ -1,24 +1,21 @@
 <template>
   <div class="all">
-    <!-- 1. 标题现在直接依赖于计算属性，自动变化 -->
-    <div>{{ pageTitle }}</div>
-    
-    <hr>
-    
-    <!-- 课程列表，当 array 有数据时才显示 -->
-    <div v-if="!isLoading && array.length > 0">
-      <div v-for="course in array" :key="course.courseID" class="cla">
-        <!-- 假设每个课程对象都有 courseID 和 courseName -->
-        {{ course.courseName }}
+    <div class="list-header"><div>{{ pageTitle }}</div><hr></div>
+    <div class="scrollable-content">
+      <div v-if="isLoading" class="loading-state">正在加载...</div>
+      <div v-else-if="array.length === 0" class="empty-state">{{ emptyMessage }}</div>
+      <div v-else>
+        <div v-for="course in array" :key="course.courseID" class="cla">
+          <!-- 使用课程项的特定结构 -->
+          <div class="course-item">
+            <div class="course-title">{{ course.courseName }}</div>
+            <!-- 只在学生视图下显示老师 -->
+            <div v-if="user.root == '0' && course.teacherName" class="teacher-name">
+              授课教师: {{ course.teacherName }}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    
-    <!-- 加载中状态 -->
-    <div v-if="isLoading" class="loading-state">正在加载课程...</div>
-    
-    <!-- 加载完成但无数据状态 -->
-    <div v-else-if="array.length === 0" class="empty-state">
-      {{ emptyMessage }}
     </div>
   </div>
 </template>
@@ -109,18 +106,67 @@ watch(
 </script>
 
 <style scoped>
-.all{
-     width: 100%;
-    height: 100%;
-    padding: 10px;
-    border: 2px solid rgb(39, 155, 194); /* 增加了'solid'样式 */
-    border-radius: 5px;
+/* --- 1. 通用布局样式 (适用于所有页面) --- */
+.all {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  border: 2px solid rgb(39, 155, 194);
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
-.cla{
-    margin-top: 5px;
-    background-color: #cdeef4;
-    border-radius: 5px;
-    padding: 10px;
-    cursor: pointer;
+
+.list-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
+  flex-shrink: 0;
+}
+
+.scrollable-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-top: 15px;
+}
+
+.loading-state, .empty-state {
+  text-align: center;
+  padding-top: 50px;
+  font-size: 16px;
+  color: #888;
+}
+
+/* --- 2. 通用卡片样式 (适用于所有列表项) --- */
+.cla {
+  margin-bottom: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.cla:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* 新增：课程标题的样式 */
+.course-title {
+    font-size: 16px; /* 假设这是主要的字体大小 */
+    font-weight: bold;
+}
+
+/* 新增：教师姓名的样式 */
+.teacher-name {
+    font-size: 13px; /* 设置一个更小的字体 */
+    color: #555;     /* 使用一个柔和的颜色 */
+    margin-top: 4px; /* 与课程标题之间增加一点间距 */
 }
 </style>
