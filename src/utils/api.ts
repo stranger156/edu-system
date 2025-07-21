@@ -77,6 +77,13 @@ export const getExam=()=>{
         method:"get"
     })
 }
+//学生根据练习题id获取练习题内容
+export const getTest=(params:any)=>{
+     return $http({
+        url:`/get_exam_for_student/${params}`,
+        method:"get"
+    })
+}
 
 //课程类
 //根据课程id和教师id查找具体课程信息
@@ -254,6 +261,16 @@ export const get_exam_for_student=(params:any)=>{
         method:"get",
     })
 }
+//学生提交答案
+export const submitExamine=(params:any)=>{
+    const jsonData = JSON.parse(JSON.stringify(params));
+      return $http({
+        url:'/student_submit',
+        method:"post",
+        headers: { "Content-Type": "application/json" },
+         data: jsonData
+    })
+}
 
 // 老师发布通知
 export const publishNotice=(params:any)=>{
@@ -338,3 +355,7 @@ export const getAllTeachers=()=>{
         method:"get",
     })
 }
+function cloneDeep(params: any) {
+    throw new Error("Function not implemented.")
+}
+
