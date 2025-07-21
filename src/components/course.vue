@@ -1,83 +1,73 @@
 <template>
   <div class="all">
-    <!-- 1. 标题现在直接依赖于计算属性，自动变化 -->
-    <div>{{ pageTitle }}</div>
-    
-    <hr>
-    
-    <!-- 课程列表，当 array 有数据时才显示 -->
-    <div v-if="!isLoading && array.length > 0">
-      <div v-for="course in array" :key="course.courseID" class="cla">
-        <!-- 假设每个课程对象都有 courseID 和 courseName -->
-        {{ course.courseName }}
+    <div class="list-header"><div>{{ pageTitle }}</div><hr></div>
+    <div class="scrollable-content">
+      <div v-if="isLoading" class="loading-state">正在加载...</div>
+      <div v-else-if="array.length === 0" class="empty-state">{{ emptyMessage }}</div>
+      <div v-else>
+        <div v-for="course in array" :key="course.courseID" class="cla">
+          <!-- 使用课程项的特定结构 -->
+          <div class="course-item">
+            <div class="course-title">{{ course.courseName }}</div>
+            <!-- 只在学生视图下显示老师 -->
+            <div v-if="user.root == '0' && course.teacherName" class="teacher-name">
+              授课教师: {{ course.teacherName }}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    
-    <!-- 加载中状态 -->
-    <div v-if="isLoading" class="loading-state">正在加载课程...</div>
-    
-    <!-- 加载完成但无数据状态 -->
-    <div v-else-if="array.length === 0" class="empty-state">
-      {{ emptyMessage }}
     </div>
   </div>
 </template>
 
-<script  setup >
+<script setup>
 import { getAllCourses, getCourseByStudent, getTeacherLectures } from '@/utils/api';
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue'; // 1. 引入 watch
 import { useUserStore } from '@/stores/token';
-import { storeToRefs } from 'pinia'; // 导入 storeToRefs 以保持响应性
+import { storeToRefs } from 'pinia';
 
 // --- 1. 初始化 Store 和响应式数据 ---
-
-// a. 获取 user store 的实例
 const userStore = useUserStore();
-
-// b. **关键**: 使用 storeToRefs 来获取响应式的 state
-//    这样，当 store 中的 user.root 变化时，我们的组件也能感知到。
 const { user } = storeToRefs(userStore);
-const isLoading = ref(true); // 新增一个加载状态
-const array=ref([])
+const isLoading = ref(true);
+const array = ref([]);
 
+// --- 2. 计算属性 (无需修改) ---
 const pageTitle = computed(() => {
-  switch (user.value.root) {
-    case '0': return '我学的课';
-    case '1': return '我教的课';
-    case '2': return '所有课程';
-    default: return '课程列表';
-  }
+  // 使用宽松比较 `==` 来避免数字和字符串类型不匹配的问题
+  if (user.value.root == '0') return '我学的课';
+  if (user.value.root == '1') return '我教的课';
+  if (user.value.root == '2') return '所有课程';
+  return '课程列表';
 });
 
 const emptyMessage = computed(() => {
-  switch (user.value.root) {
-    case '0': return '您还没有选择任何课程';
-    case '1': return '您还没有创建任何课程';
-    case '2': return '系统中还没有任何课程';
-    default: return '暂无课程';
-  }
+  if (user.value.root == '0') return '您还没有选择任何课程';
+  if (user.value.root == '1') return '您还没有创建任何课程';
+  if (user.value.root == '2') return '系统中还没有任何课程';
+  return '暂无课程';
 });
 
-onMounted(() => {
-  // 确保 user.root 有值
-  if (!user.value.root) {
-    console.warn("User root is not available on mount. Cannot fetch courses.");
-    isLoading.value = false;
+// --- 3. 核心数据获取逻辑 (封装成一个函数) ---
+const fetchCourses = () => {
+  // 如果 root 值不存在，则不执行任何操作
+  if (user.value.root === null || user.value.root === undefined) {
     return;
   }
+  
+  isLoading.value = true;
+  array.value = []; // 在请求前清空旧数据
 
   let apiCall;
 
-  // 根据响应式的 user.value.root 来决定调用哪个 API
-  if (user.value.root === '0') {
+  // 根据 root 值决定调用哪个 API
+  if (user.value.root == '0') {
     apiCall = getCourseByStudent();
-  } else if (user.value.root === '1') {
-    // 假设 getStudentLectures 是获取老师所教课程的接口
+  } else if (user.value.root == '1') {
     apiCall = getTeacherLectures();
-  } else if (user.value.root === '2') {
+  } else if (user.value.root == '2') {
     apiCall = getAllCourses();
   } else {
-    // 如果 root 值无效，直接结束
     console.error(`Invalid user root: ${user.value.root}`);
     isLoading.value = false;
     return;
@@ -85,36 +75,98 @@ onMounted(() => {
 
   // 执行 API 调用
   apiCall.then(res => {
-    // 统一处理可能的数据结构差异
-    const coursesList = res.data || res.courses || res.lectures ||[];
-    console.log(coursesList)
+    const coursesList = res.data || res.courses || res.lectures || [];
     if (Array.isArray(coursesList)) {
       array.value = coursesList;
     } else {
-      console.warn("API response `data` or `courses` is not an array:", res);
+      console.warn("API response is not an array:", res);
     }
   }).catch(error => {
     console.error("Failed to fetch courses:", error);
-    array.value = []; // 出错时清空数组
   }).finally(() => {
-    isLoading.value = false; // 结束加载状态
+    isLoading.value = false;
   });
-});
+};
+
+// --- 4. 使用 watch 替代 onMounted 的主要职责 ---
+// 侦听 user.root 的变化
+watch(
+  () => user.value.root, // 我们要侦听的目标
+  (newRoot, oldRoot) => {
+    // 只有当 root 值真实存在时才触发数据获取
+    if (newRoot !== null && newRoot !== undefined) {
+      console.log(`User root changed from ${oldRoot} to ${newRoot}. Fetching courses...`);
+      fetchCourses();
+    }
+  },
+  {
+    immediate: true // <-- 这是关键！它让 watch 在组件初始化时立即执行一次处理函数
+  }
+);
 </script>
 
 <style scoped>
-.all{
-     width: 100%;
-    height: 100%;
-    padding: 10px;
-    border: 2px solid rgb(39, 155, 194); /* 增加了'solid'样式 */
-    border-radius: 5px;
+/* --- 1. 通用布局样式 (适用于所有页面) --- */
+.all {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  border: 2px solid rgb(39, 155, 194);
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
-.cla{
-    margin-top: 5px;
-    background-color: #cdeef4;
-    border-radius: 5px;
-    padding: 10px;
-    cursor: pointer;
+
+.list-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
+  flex-shrink: 0;
+}
+
+.scrollable-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-top: 15px;
+}
+
+.loading-state, .empty-state {
+  text-align: center;
+  padding-top: 50px;
+  font-size: 16px;
+  color: #888;
+}
+
+/* --- 2. 通用卡片样式 (适用于所有列表项) --- */
+.cla {
+  margin-bottom: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.cla:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* 新增：课程标题的样式 */
+.course-title {
+    font-size: 16px; /* 假设这是主要的字体大小 */
+    font-weight: bold;
+}
+
+/* 新增：教师姓名的样式 */
+.teacher-name {
+    font-size: 13px; /* 设置一个更小的字体 */
+    color: #555;     /* 使用一个柔和的颜色 */
+    margin-top: 4px; /* 与课程标题之间增加一点间距 */
 }
 </style>
