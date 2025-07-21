@@ -317,6 +317,30 @@ export const getNoticeDetailByNoticeID=(params:any)=>{
     })
 }
 
+// 老师根据课程ID获取文件列表
+export const get_course_files_for_teacher=(params:any)=>{
+  const formData=new FormData()
+     formData.append('course_id', params)
+      return $http({
+        url:'/get_course_files_for_teacher',
+        method:"post",
+        data:formData
+    })
+}
+
+// 老师下载文件
+export const download=(params:any)=>{
+  const formData=new FormData()
+     formData.append('course_id', params.course_id)
+     formData.append('filename', params.filename)
+      return $http({
+        url:'/download',
+        method:"post",
+        data:formData,
+        responseType:'blob'
+    })
+}
+
 // 获取课程学生
 export const getStudents=(params:any)=>{
   const formData=new FormData()
