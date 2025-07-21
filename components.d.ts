@@ -8,10 +8,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AssignmentArea: typeof import('./src/components/AssignmentArea.vue')['default']
+    BottomComponent: typeof import('./src/components/BottomComponent.vue')['default']
     Class: typeof import('./src/components/Class.vue')['default']
     Course: typeof import('./src/components/course.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElButton: typeof import('element-plus/es')['ElButton']
+    ElCol: typeof import('element-plus/es')['ElCol']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElHeader: typeof import('element-plus/es')['ElHeader']
     ElIcon: typeof import('element-plus/es')['ElIcon']
