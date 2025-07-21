@@ -1,45 +1,53 @@
 <template>
   <div class="materials-table">
     <el-table :data="materials" style="width: 100%" border>
-      <!-- 新增图片列 -->
-      <el-table-column label="" width="80">
-        <template #default="{ row }">
+      <!-- 文件图标列 -->
+      <el-table-column label="" width="80" align="center">
+        <template #default>
           <img 
-            :src="set(row.iconPath)" 
-            style="width: 100%; height: 100%;"
+            :src="materialIcon" 
+            style="width: 40px; height: 40px; object-fit: contain;"
             alt="文件图标"
           />
         </template>
       </el-table-column>
 
-      <!-- 原有文件名列 -->
-      <el-table-column prop="displayName" label="文件名">
-        <template #default="{ row }">
-          {{ formatDisplayName(row.displayName) }}
-        </template>
-      </el-table-column>
+      <!-- 文件名列 (已修正) -->
+      <el-table-column prop="displayName" label="文件名" />
 
-      <!-- 其他列保持不变 -->
+      <!-- 其他列 -->
       <el-table-column prop="size_kb" label="大小" width="120">
         <template #default="{ row }">
           {{ formatFileSize(row.size_kb) }}
         </template>
       </el-table-column>
       <el-table-column prop="modified_time" label="创建时间" width="180" />
-      <el-table-column label="操作" width="180">
+      <el-table-column label="操作" width="180" align="center">
         <template #default="{ row }">
           <el-button size="small" @click="handleDownload(row)">下载</el-button>
           <el-button size="small" type="primary" @click="handlePreview(row)">预览</el-button>
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- 新增：用于文件预览的弹窗 -->
+    <el-dialog
+      v-model="previewDialogVisible"
+      title="文件预览"
+      width="60%"
+      @close="clearPreview"
+      append-to-body
+    >
+      <div ref="previewContainerRef" class="preview-container"></div>
+    </el-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {get_course_files_for_teacher, download} from '@/utils/api'
-import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { get_course_files_for_teacher, download } from '@/utils/api'
+import { ref, onMounted, nextTick } from 'vue'
+import { ElMessage, ElLoading } from 'element-plus'
+import { renderAsync } from 'docx-preview' // <-- 1. 导入 renderAsync
 import materialIcon from '@/image/material.png'
 
 const props = defineProps({
@@ -47,6 +55,7 @@ const props = defineProps({
     type: [String, Number],
     required: true
   },
+  // teacherId 属性在您的代码中已定义但未使用，这里保留
   teacherId: {
     type: [String, Number],
     required: true
@@ -62,83 +71,110 @@ interface Material {
   modified_time: string
 }
 
-
 // 表格数据
 const materials = ref<Material[]>([])
 
+// --- 新增：预览弹窗所需的状态 ---
+const previewDialogVisible = ref(false)
+const previewContainerRef = ref<HTMLDivElement | null>(null)
+// --- 新增结束 ---
+
+
 onMounted(async () => {
-  get_course_files_for_teacher(props.courseId).then(res => {
-    materials.value = res.data.courseware
-  })
+  try {
+    const res = await get_course_files_for_teacher(props.courseId)
+    // 假设您的API在成功时返回 { code: 200, data: { ... } } 结构
+    if (res.code === 200) {
+      materials.value = res.data.courseware
+    } else {
+      ElMessage.error(res.message || '获取文件列表失败')
+    }
+  } catch (error) {
+    ElMessage.error('请求文件列表时出错')
+    console.error(error)
+  }
 })
 
 // 文件大小格式化
 const formatFileSize = (bytes: number) => {
-  return bytes + 'KB'
+  if (bytes < 1024) {
+    return bytes + ' KB'
+  }
+  return (bytes / 1024).toFixed(2) + ' MB'
 }
 
-const formatDisplayName = (displayName: string) => {
-  return displayName + '.doc'
-}
-
-const set = (iconPath: string) => {
-  return materialIcon 
-}
-
+// 下载功能 (保持不变)
 const handleDownload = async (row: Material) => {
   try {
-    // 调用下载接口
     const response = await download({
       course_id: props.courseId,
-      filename: row.filename
+      filename: row.filename,
+      teacher_id: props.teacherId // 确保传递了需要的参数
     })
     
+    // 后端返回的应该是一个Blob对象
     const downloadUrl = window.URL.createObjectURL(response)
-    // 创建临时链接
     const link = document.createElement('a')
     link.href = downloadUrl
-    link.setAttribute('download', row.filename)
+    // 从后端获取显示标题作为下载文件名
+    link.setAttribute('download', row.displayName + '.docx') // 假设都是docx
     document.body.appendChild(link)
     link.click()
     
-    // 清理资源
     document.body.removeChild(link)
     window.URL.revokeObjectURL(downloadUrl)
-    
-    ElMessage.success('下载开始')
+    ElMessage.success('下载任务已开始')
   } catch (error) {
     ElMessage.error('下载失败，请稍后重试')
     console.error('下载错误:', error)
   }
 }
- 
-// 修改后的预览处理
+
+// --- 2. 全新重写的预览处理函数 ---
 const handlePreview = async (row: Material) => {
+  // a. 打开弹窗
+  previewDialogVisible.value = true
+  const loading = ElLoading.service({
+    target: '.el-dialog',
+    text: '正在加载并渲染文件，请稍候...'
+  })
+
   try {
-    // 调用下载接口获取文件流
-    const response = await download({
+    // b. 确保DOM已更新，容器已准备好
+    await nextTick()
+
+    // c. 调用API获取文件Blob数据
+    const fileBlob = await download({
       course_id: props.courseId,
-      filename: row.filename
+      filename: row.filename,
+      teacher_id: props.teacherId // 确保传递了需要的参数
     })
- 
-    const previewUrl = window.URL.createObjectURL(response)
-    
-    // 打开新窗口预览
-    const newWindow = window.open()
-    if (newWindow) {
-      newWindow.location.href = previewUrl
+
+    // d. 使用 docx-preview 渲染
+    if (previewContainerRef.value) {
+      await renderAsync(fileBlob, previewContainerRef.value)
+      ElMessage.success('文件渲染完成')
     } else {
-      ElMessage.warning('请允许弹出窗口以进行预览')
+      throw new Error('预览容器不存在')
     }
-    
-    // 延迟释放URL（根据浏览器兼容性调整）
-    setTimeout(() => {
-      window.URL.revokeObjectURL(previewUrl)
-    }, 1000 * 60) // 1分钟后释放
-    
   } catch (error) {
-    ElMessage.error('预览失败，请检查文件格式')
+    ElMessage.error('预览失败，文件可能已损坏或格式不支持')
     console.error('预览错误:', error)
+    // 可以在容器中显示错误信息
+    if(previewContainerRef.value) {
+      previewContainerRef.value.innerText = '无法加载此文件的预览。'
+    }
+  } finally {
+    // e. 无论成功与否，关闭加载动画
+    loading.close()
+  }
+}
+
+// --- 3. 新增：清理函数，在弹窗关闭时调用 ---
+const clearPreview = () => {
+  if (previewContainerRef.value) {
+    // 清空容器内容，防止下次打开时看到旧的预览
+    previewContainerRef.value.innerHTML = ''
   }
 }
 </script>
@@ -157,5 +193,12 @@ const handlePreview = async (row: Material) => {
 
 .el-button {
   margin: 0 4px;
+}
+
+.preview-container {
+  height: 65vh; /* 视窗高度的65%，可以根据需要调整 */
+  overflow-y: auto; /* 内容超出时显示滚动条 */
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
 }
 </style>
