@@ -4,17 +4,19 @@
     <el-container style="height: 100%;">
       <el-aside width="200px" style="border-right: 2px blanchedalmond solid;height: 100%;">
         <div style="font-size: 20px;padding: 10px;text-align: center;">AI聊天助手</div>
-        <div v-for="item in history" class="history">
+
+        <div v-for="item in history" :class="item.id===sessionid?'history active':'history'" @click="change(item)">
             <el-icon :size="16"><ChatDotRound /></el-icon>
-            <span style="margin-left: 5px;font-size: 16px;">{{ item.name.slice(0,8) }}</span>
-            <span v-show="item.name.length>8">...</span>
+            <span style="margin-left: 5px;font-size: 16px;">{{ item.name.slice(18,26) }}</span>
+            <span v-show="item.name.length>26">...</span>
         </div>
+
       </el-aside>
       <el-container>
         <el-header>
-            <div style="text-align: center;margin-top: 10px;">
-            <span style="font-size: 16px;">{{ title.slice(0,20) }}</span>
-            <span v-show="title.length>15">...</span>
+            <div style="text-align: center;margin-top: 10px;padding: 10px;">
+            <span style="font-size: 16px;">{{ title.slice(18,26) }}</span>
+            <span v-show="title.length>26">...</span>
             </div>
         </el-header>
         <el-main style="height: calc(100vh - 250px);" class="hide-scrollbar" id="chat"> 
@@ -62,6 +64,7 @@ const sessionid=ref()
 const list=ref([])
 const title=ref('')
 const input=ref()
+const content=ref('')
 const messageList=ref([])
 const fullResponse = ref(''); // 用于存储完整的响应内容
 const props = defineProps({
@@ -74,9 +77,17 @@ const props = defineProps({
     required: true
   }
 })
+const change=(item)=>{
+  console.log(item.id)
+  sessionid.value=item.id
+   getSessionsByID(chatId.value,sessionid.value).then(res=>{
+        messageList.value=res.data.messages
+         setScrollToBottom()
+    })
+}
 const compiledMarkdown=(dialog)=>{
       let string=marked(dialog)
-      useMathJax(string)
+      // useMathJax(string)
       return string;
     }
     	/*内容显示过多时自动滑动*/
@@ -108,9 +119,24 @@ const sendMsg=async()=>{
   // 手动解析分块响应
  if(data){
    getSessionsByID(chatId.value,sessionid.value).then(res=>{
-        messageList.value=res.data.messages
-        console.log(messageList.value)
-         setScrollToBottom()
+        let newAnswer=res.data.messages[res.data.messages.length-1].content
+        messageList.value=res.data.messages.slice(0,res.data.messages.length-1)
+          setScrollToBottom();
+        messageList.value.push({
+        content:'',
+        role:'assistant'
+      })
+         let charIndex = 0;
+      const displayInterval = setInterval(() => {
+                if (charIndex < newAnswer.length) {
+                    messageList.value[messageList.value.length-1].content += newAnswer[charIndex];
+                    charIndex++;
+                    setScrollToBottom();
+                } else {
+                    clearInterval(displayInterval);
+                }
+            }, 50); // 调整这个数字可以改变显示速度
+
     })
  }
 
@@ -134,7 +160,8 @@ onMounted(async()=>{
     title.value=history.value[0].name
     getSessionsByID(chatId.value,sessionid.value).then(res=>{
         messageList.value=res.data.messages
-        console.log(messageList.value)
+        console.log(res.data.messages.slice(0,res.data.messages.length-1))
+        useMathJax(messageList.value)
          setScrollToBottom()
     })
 
@@ -189,10 +216,21 @@ border-radius: 12px;
     display: flex;
     align-items: center;
     cursor: pointer;
+    margin: 5px;
 }
 .common-layout{
     background-color: #e3ebf2;
     padding: 0;
     height: 100%;
+}
+.history:hover{
+  border: 2px white solid;
+  background-color: #a0c5e6;
+  color: #f5f6f7;
+}
+.active{
+  border: 2px white solid;
+  background-color: #a0c5e6;
+  color: #f5f6f7;
 }
 </style>
