@@ -97,176 +97,174 @@ const compiledMarkdown=(dialog)=>{
 	  chat.scrollTop = chat.scrollHeight
 	}
 // 发送提问
-const sendMsg=async()=>{
-    if(input.value.trim().length===0){
-        input.value=''
-        return 
-    }
-      let question=input.value.trim()
-      messageList.value.push({
-        content:question,
-        role:'user'
-      })
-      input.value=''
-       setScrollToBottom()
+// const sendMsg=async()=>{
+//     if(input.value.trim().length===0){
+//         input.value=''
+//         return 
+//     }
+//       let question=input.value.trim()
+//       messageList.value.push({
+//         content:question,
+//         role:'user'
+//       })
+//       input.value=''
+//        setScrollToBottom()
    
-  const  data = await sendQuestion({
-      question: question,
-      sessionid: sessionid.value,
-      chatid: chatId.value,
-      courseid: props.courseId
-    });
-  // 手动解析分块响应
- if(data){
-   getSessionsByID(chatId.value,sessionid.value).then(res=>{
-        let newAnswer=res.data.messages[res.data.messages.length-1].content
-        messageList.value=res.data.messages.slice(0,res.data.messages.length-1)
-          setScrollToBottom();
-        messageList.value.push({
-        content:'',
-        role:'assistant'
-      })
-         let charIndex = 0;
-      const displayInterval = setInterval(() => {
-                if (charIndex < newAnswer.length) {
-                    messageList.value[messageList.value.length-1].content += newAnswer[charIndex];
-                    charIndex++;
-                    setScrollToBottom();
-                } else {
-                    clearInterval(displayInterval);
-                }
-            }, 50); // 调整这个数字可以改变显示速度
+//   const  data = await sendQuestion({
+//       question: question,
+//       sessionid: sessionid.value,
+//       chatid: chatId.value,
+//       courseid: props.courseId
+//     });
+//   // 手动解析分块响应
+//  if(data){
+//    getSessionsByID(chatId.value,sessionid.value).then(res=>{
+//         let newAnswer=res.data.messages[res.data.messages.length-1].content
+//         messageList.value=res.data.messages.slice(0,res.data.messages.length-1)
+//           setScrollToBottom();
+//         messageList.value.push({
+//         content:'',
+//         role:'assistant'
+//       })
+//          let charIndex = 0;
+//       const displayInterval = setInterval(() => {
+//                 if (charIndex < newAnswer.length) {
+//                     messageList.value[messageList.value.length-1].content += newAnswer[charIndex];
+//                     charIndex++;
+//                     setScrollToBottom();
+//                 } else {
+//                     clearInterval(displayInterval);
+//                 }
+//             }, 50); // 调整这个数字可以改变显示速度
 
-    })
- }
+//     })
+//  }
 
-const compiledMarkdown = (dialog) => {
-  // 安全检查：如果输入为空或不是字符串，则直接返回空字符串
-  if (!dialog || typeof dialog !== 'string') {
-    return '';
-  }
+// const compiledMarkdown = (dialog) => {
+//   // 安全检查：如果输入为空或不是字符串，则直接返回空字符串
+//   if (!dialog || typeof dialog !== 'string') {
+//     return '';
+//   }
 
-  let processedText = dialog;
+//   let processedText = dialog;
 
-  processedText = processedText.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
+//   processedText = processedText.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
 
-  // 最后，将完全清理干净的文本交给 marked.js 进行 HTML 转换
-  return marked(processedText);
-};
+//   // 最后，将完全清理干净的文本交给 marked.js 进行 HTML 转换
+//   return marked(processedText);
+// };
 
-const cleanAndCompile = (dialog) => {
-    if (!dialog || typeof dialog !== 'string') return '';
+// const cleanAndCompile = (dialog) => {
+//     if (!dialog || typeof dialog !== 'string') return '';
     
-    // 1. 修复 LaTeX 格式
-    let fixedDialog = dialog.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
+//     // 1. 修复 LaTeX 格式
+//     let fixedDialog = dialog.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
     
-    // 2. 转换为 HTML
-    return marked(fixedDialog);
-};
+//     // 2. 转换为 HTML
+//     return marked(fixedDialog);
+// };
 
-/*内容显示过多时自动滑动*/
-async function setScrollToBottom() {
-  await nextTick();
-  let chat = document.querySelector("#chat");
-  if (chat) {
-    chat.scrollTop = chat.scrollHeight;
-  }
-}
-<<<<<<< HEAD
-onMounted(async()=>{
-    state.value=localStorage.getItem('root')
-    // 学生用户获取聊天助手
-    if(state.value==='0'){
-        let result=await getChatIDByStudentWIthID(props.courseId,props.teacherId)
-        console.log(result)
-        chatId.value=result.chatID
-    }
-    //教师获取聊天助手
-    if(state.value==='1'){
-    let result=await get_chatID(props.courseId)
-    chatId.value=result.chatID
-   }
-    let res=await getSessions( chatId.value)
-    history.value=res.data
-    sessionid.value=history.value[0].id
-    title.value=history.value[0].name
-    getSessionsByID(chatId.value,sessionid.value).then(res=>{
-        messageList.value=res.data.messages
-        console.log(res.data.messages.slice(0,res.data.messages.length-1))
-        useMathJax(messageList.value)
-         setScrollToBottom()
-    })
-=======
->>>>>>> bcedd5925af1073cd0e2e87c3c50d0561e1f5f8e
+// /*内容显示过多时自动滑动*/
+// async function setScrollToBottom() {
+//   await nextTick();
+//   let chat = document.querySelector("#chat");
+//   if (chat) {
+//     chat.scrollTop = chat.scrollHeight;
+//   }
+// }
+// onMounted(async()=>{
+//     state.value=localStorage.getItem('root')
+//     // 学生用户获取聊天助手
+//     if(state.value==='0'){
+//         let result=await getChatIDByStudentWIthID(props.courseId,props.teacherId)
+//         console.log(result)
+//         chatId.value=result.chatID
+//     }
+//     //教师获取聊天助手
+//     if(state.value==='1'){
+//     let result=await get_chatID(props.courseId)
+//     chatId.value=result.chatID
+//    }
+//     let res=await getSessions( chatId.value)
+//     history.value=res.data
+//     sessionid.value=history.value[0].id
+//     title.value=history.value[0].name
+//     getSessionsByID(chatId.value,sessionid.value).then(res=>{
+//         messageList.value=res.data.messages
+//         console.log(res.data.messages.slice(0,res.data.messages.length-1))
+//         useMathJax(messageList.value)
+//          setScrollToBottom()
+//     })
+//   })
 
-// 监听 messageList 的变化，当它更新时，执行滚动和数学公式排版
-watch(messageList, () => {
-  setScrollToBottom();
-  renderMathJax(); // <--- 在数据更新后调用排版
-}, { deep: true }); // 使用 deep watch 来监听数组内部的变化
+// // 监听 messageList 的变化，当它更新时，执行滚动和数学公式排版
+// watch(messageList, () => {
+//   setScrollToBottom();
+//   renderMathJax(); // <--- 在数据更新后调用排版
+// }, { deep: true }); // 使用 deep watch 来监听数组内部的变化
 
 
-// 发送提问
-const sendMsg = async () => {
-  if (input.value.trim().length === 0) {
-    input.value = '';
-    return;
-  }
-  let question = input.value.trim();
-  messageList.value.push({
-    content: question,
-    role: 'user'
-  });
-  input.value = '';
-  // setScrollToBottom() 和 renderMathJax() 将由 watch 触发
+// // 发送提问
+// const sendMsg = async () => {
+//   if (input.value.trim().length === 0) {
+//     input.value = '';
+//     return;
+//   }
+//   let question = input.value.trim();
+//   messageList.value.push({
+//     content: question,
+//     role: 'user'
+//   });
+//   input.value = '';
+//   // setScrollToBottom() 和 renderMathJax() 将由 watch 触发
 
-  const data = await sendQuestion({
-    question: question,
-    sessionid: sessionid.value,
-    chatid: chatId.value,
-    courseid: props.courseId
-  });
+//   const data = await sendQuestion({
+//     question: question,
+//     sessionid: sessionid.value,
+//     chatid: chatId.value,
+//     courseid: props.courseId
+//   });
 
-  if (data) {
-    getSessionsByID(chatId.value, sessionid.value).then(res => {
-      const processedMessages = res.data.messages.map(msg => {
-            return {
-                ...msg, // 复制原始消息对象的所有属性
-                content: cleanAndCompile(msg.content) // 用一个统一的函数处理内容
-            };
-        });
-        messageList.value = processedMessages;
-    });
-  }
-};
+//   if (data) {
+//     getSessionsByID(chatId.value, sessionid.value).then(res => {
+//       const processedMessages = res.data.messages.map(msg => {
+//             return {
+//                 ...msg, // 复制原始消息对象的所有属性
+//                 content: cleanAndCompile(msg.content) // 用一个统一的函数处理内容
+//             };
+//         });
+//         messageList.value = processedMessages;
+//     });
+//   }
+// };
 
-onMounted(async () => {
-  state.value = localStorage.getItem('root');
-  // 学生用户获取聊天助手
-  if (state.value === '0') {
-    let result = await getChatIDByStudentWIthID(props.courseId, props.teacherId);
-    console.log(result);
-    chatId.value = result.chatID;
-  }
-  //教师获取聊天助手
-  if (state.value === '1') {
-    let result = await get_chatID(props.courseId);
-    chatId.value = result.chatID;
-  }
-  let res = await getSessions(chatId.value);
-  history.value = res.data;
-  sessionid.value = history.value[0].id;
-  title.value = history.value[0].name;
-  getSessionsByID(chatId.value, sessionid.value).then(res => {
-    const processedMessages = res.data.messages.map(msg => {
-            return {
-                ...msg,
-                content: cleanAndCompile(msg.content)
-            };
-        });
-        messageList.value = processedMessages;
-  });
-});
+// onMounted(async () => {
+//   state.value = localStorage.getItem('root');
+//   // 学生用户获取聊天助手
+//   if (state.value === '0') {
+//     let result = await getChatIDByStudentWIthID(props.courseId, props.teacherId);
+//     console.log(result);
+//     chatId.value = result.chatID;
+//   }
+//   //教师获取聊天助手
+//   if (state.value === '1') {
+//     let result = await get_chatID(props.courseId);
+//     chatId.value = result.chatID;
+//   }
+//   let res = await getSessions(chatId.value);
+//   history.value = res.data;
+//   sessionid.value = history.value[0].id;
+//   title.value = history.value[0].name;
+//   getSessionsByID(chatId.value, sessionid.value).then(res => {
+//     const processedMessages = res.data.messages.map(msg => {
+//             return {
+//                 ...msg,
+//                 content: cleanAndCompile(msg.content)
+//             };
+//         });
+//         messageList.value = processedMessages;
+//   });
+// });
 </script>
 
 <style scoped>

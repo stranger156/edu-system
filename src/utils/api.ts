@@ -353,6 +353,7 @@ export const download=(params:any)=>{
   const formData=new FormData()
      formData.append('course_id', params.course_id)
      formData.append('filename', params.filename)
+     formData.append('teacher_id', params.teacher_id)
       return $http({
         url:'/download',
         method:"post",

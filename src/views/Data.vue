@@ -119,6 +119,7 @@ const formatDisplayName = (displayName: string) => {
 // 下载功能 (保持不变)
 const handleDownload = async (row: Material) => {
   try {
+    console.log(props.courseId+row.filename+props.teacherId)
     const response = await download({
       course_id: props.courseId,
       filename: row.filename,
