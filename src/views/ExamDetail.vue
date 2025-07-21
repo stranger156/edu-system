@@ -70,7 +70,7 @@ const getQuestionsByType = (type) => {
     .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
     .map(([_, q]) => ({
       ...q,
-      // 新增过滤逻辑：移除所有 [ID:数字] 格式的内容
+      // 新增过滤逻辑：移除所有 [ID:数字] 格式的内容a
       题目: q.题目?.replace(/\[ID:\d+\]/g, '')?.trim(),
       答案: q.答案?.replace(/\[ID:\d+\]/g, '')?.trim(),
       解析: q.解析?.replace(/\[ID:\d+\]/g, '')?.trim()

@@ -91,12 +91,16 @@ onMounted(async () => {
     if(state.value == '1'){
       res = await get_course_files_for_teacher(props.courseId)
       materials.value = res.data.courseware
+      materials.value = materials.value.concat(res.data.assignments)
+      materials.value = materials.value.concat(res.data.solutions)
     }else{
       res = await get_all_files_for_admin({
         'course_id': props.courseId,
         'teacher_id': props.teacherId
       })
       materials.value = res.data.files.courseware
+      materials.value = materials.value.concat(res.data.files.assignments)
+      materials.value = materials.value.concat(res.data.files.solutions)
     }
   } catch (error) {
     ElMessage.error('请求文件列表时出错')
