@@ -62,11 +62,10 @@ const chatId = ref();
 const state = ref();
 const history = ref([]);
 const sessionid = ref();
-const list = ref([]);
 const title = ref('');
 const input = ref();
 const messageList = ref([]);
-const fullResponse = ref('');
+
 const props = defineProps({
   courseId: {
     type: [String, Number],
@@ -77,6 +76,7 @@ const props = defineProps({
     required: true
   }
 })
+
 const change=(item)=>{
   console.log(item.id)
   sessionid.value=item.id
@@ -85,16 +85,13 @@ const change=(item)=>{
          setScrollToBottom()
     })
 }
-const compiledMarkdown=(dialog)=>{
-      let string=marked(dialog)
-      // useMathJax(string)
-      return string;
-    }
+
     	/*内容显示过多时自动滑动*/
-	async function setScrollToBottom() {
+async function setScrollToBottom() {
 	  await nextTick()
 	  let chat = document.querySelector("#chat")
 	  chat.scrollTop = chat.scrollHeight
+<<<<<<< HEAD
 	}
 // 发送提问
 // const sendMsg=async()=>{
@@ -139,6 +136,11 @@ const compiledMarkdown=(dialog)=>{
 
 //     })
 //  }
+=======
+}
+
+// 发送提问
+>>>>>>> 041a0769e414723fc9a976d4e635b9968f811324
 
 // const compiledMarkdown = (dialog) => {
 //   // 安全检查：如果输入为空或不是字符串，则直接返回空字符串
@@ -164,6 +166,7 @@ const compiledMarkdown=(dialog)=>{
 //     return marked(fixedDialog);
 // };
 
+<<<<<<< HEAD
 // /*内容显示过多时自动滑动*/
 // async function setScrollToBottom() {
 //   await nextTick();
@@ -196,6 +199,9 @@ const compiledMarkdown=(dialog)=>{
 //          setScrollToBottom()
 //     })
 //   })
+=======
+
+>>>>>>> 041a0769e414723fc9a976d4e635b9968f811324
 
 // // 监听 messageList 的变化，当它更新时，执行滚动和数学公式排版
 // watch(messageList, () => {
@@ -203,8 +209,61 @@ const compiledMarkdown=(dialog)=>{
 //   renderMathJax(); // <--- 在数据更新后调用排版
 // }, { deep: true }); // 使用 deep watch 来监听数组内部的变化
 
+<<<<<<< HEAD
 
 // // 发送提问
+=======
+const sendMsg=async()=>{
+    if(input.value.trim().length===0){
+        input.value=''
+        return 
+    }
+      let question=input.value.trim()
+      messageList.value.push({
+        content:question,
+        role:'user'
+      })
+      input.value=''
+       setScrollToBottom()
+   
+  const  data = await sendQuestion({
+      question: question,
+      sessionid: sessionid.value,
+      chatid: chatId.value,
+      courseid: props.courseId
+    });
+  // 手动解析分块响应
+ if(data){
+   getSessionsByID(chatId.value,sessionid.value).then(res=>{
+     const processedMessages = res.data.messages.map(msg => {
+            return {
+                ...msg, // 复制原始消息对象的所有属性
+                content: cleanAndCompile(msg.content) // 用一个统一的函数处理内容
+            };
+        });
+        let newAnswer=processedMessages[processedMessages.length-1].content
+        messageList.value=processedMessages.slice(0,processedMessages.length-1)
+          setScrollToBottom();
+        messageList.value.push({
+        content:'',
+        role:'assistant'
+      })
+         let charIndex = 0;
+      const displayInterval = setInterval(() => {
+                if (charIndex < newAnswer.length) {
+                    messageList.value[messageList.value.length-1].content += newAnswer[charIndex];
+                    charIndex++;
+                    setScrollToBottom();
+                } else {
+                    clearInterval(displayInterval);
+                }
+            }, 50); // 调整这个数字可以改变显示速度
+
+    })
+ }
+}
+// 发送提问
+>>>>>>> 041a0769e414723fc9a976d4e635b9968f811324
 // const sendMsg = async () => {
 //   if (input.value.trim().length === 0) {
 //     input.value = '';
@@ -237,6 +296,7 @@ const compiledMarkdown=(dialog)=>{
 //     });
 //   }
 // };
+<<<<<<< HEAD
 
 // onMounted(async () => {
 //   state.value = localStorage.getItem('root');
@@ -265,6 +325,40 @@ const compiledMarkdown=(dialog)=>{
 //         messageList.value = processedMessages;
 //   });
 // });
+=======
+
+
+
+onMounted(async () => {
+  state.value = localStorage.getItem('root');
+  // 学生用户获取聊天助手
+  if (state.value === '0') {
+    let result = await getChatIDByStudentWIthID(props.courseId, props.teacherId);
+    console.log(result);
+    chatId.value = result.chatID;
+  }
+  //教师获取聊天助手
+  if (state.value === '1') {
+    let result = await get_chatID(props.courseId);
+    chatId.value = result.chatID;
+  }
+  let res = await getSessions(chatId.value);
+  history.value = res.data;
+  sessionid.value = history.value[0].id;
+  title.value = history.value[0].name;
+  getSessionsByID(chatId.value, sessionid.value).then(res => {
+    const processedMessages = res.data.messages.map(msg => {
+            return {
+                ...msg,
+                content: cleanAndCompile(msg.content)
+            };
+        });
+        messageList.value = processedMessages;
+         setScrollToBottom()
+  });
+})
+
+>>>>>>> 041a0769e414723fc9a976d4e635b9968f811324
 </script>
 
 <style scoped>
