@@ -5,7 +5,7 @@
       <!-- **左侧栏：课程列表** -->
       <div class="stats-column">
         <div class="column-header">
-          <h3>全站课程总览</h3>
+          <h3>课程总览</h3>
           <!-- **新增：可点击的排序表头** -->
           <div class="sort-headers">
             <span 
