@@ -95,8 +95,9 @@ title.value='通知'
 </script>
 <style scoped>
 .top{
-  background-color: #89c6ce;
+   background-color: #90d6df;
   height:60px;
+  
 }
 .side{
   background-color: #2a7ee4;

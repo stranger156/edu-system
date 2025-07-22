@@ -1,6 +1,8 @@
 <template>
   <div class="materials-table">
-    <el-table :data="materials" style="width: 100%" border>
+     <div style="padding: 10px;font-size: 25px;">资料库</div>
+    <hr>
+    <el-table :data="materials" style="width: 100%;max-height: 600px;" border>
       <!-- 文件图标列 -->
       <el-table-column label="" width="80" align="center">
         <template #default>
@@ -203,7 +205,7 @@ const clearPreview = () => {
   padding: 20px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+  /* box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1); */
 }
 
 .el-table {

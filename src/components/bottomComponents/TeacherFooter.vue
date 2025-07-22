@@ -6,7 +6,7 @@
       <!-- **左侧栏：课程列表** -->
       <div class="stats-column">
         <div class="column-header">
-          <h3>我教的课程</h3>
+          <h3>课程详情</h3>
         </div>
         <div class="list-scroll-area">
           <div v-if="isLoadingCourses" class="loading-spinner"></div>
@@ -34,7 +34,7 @@
                   <span class="stat-value">
                     {{ parseFloat(course.completion_rate).toFixed(1) }}%
                   </span>
-                  <span class="stat-label">通过率</span>
+                  <span class="stat-label">提交率</span>
                 </div>
               </div>
             </li>

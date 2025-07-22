@@ -90,6 +90,10 @@ watch(
       title.value='courseMessage'
       return
     }
+    if(newPath==='correct'){
+       title.value='Task'
+      return
+    }
     if(newPath==='examDetail'){
       title.value='Task'
       return
