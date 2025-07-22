@@ -2,9 +2,8 @@
   <div class="all">
     <div class="list-header">
       <div>{{ pageTitle }}</div>
-      <hr>
+      <hr style="margin-top: 5px;">
     </div>
-    
     <div class="scrollable-content">
       <div v-if="isLoading" class="loading-state">正在加载作业...</div>
       <div v-else-if="assignments.length === 0 && user.root!='2'" class="empty-state">{{ emptyMessage }}</div>
@@ -292,7 +291,7 @@ watch(() => user.value.root, (newRoot) => {
   height: 100%;
   padding: 20px;
   padding: 20px;
-  border: 2px solid rgb(39, 155, 194);
+  border: 2px solid rgb(80, 230, 185);
   border-radius: 8px;
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -306,12 +305,8 @@ watch(() => user.value.root, (newRoot) => {
   font-weight: bold;
   color: #333;
   padding-bottom: 10px;
-  border-bottom: 2px solid #007bff;
+  /* border-bottom: 2px solid #007bff; */
   font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #007bff;
   flex-shrink: 0;
 }
 .scrollable-content {

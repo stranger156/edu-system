@@ -234,7 +234,7 @@ const handleWeaknessCheck = async (courseID: number, teacherID: number) => {
   font-weight: bold;
   color: #333;
   padding-bottom: 10px;
-  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
+  /* border-bottom: 2px solid #007bff; 统一使用蓝色主题线 */
   flex-shrink: 0;
 }
 

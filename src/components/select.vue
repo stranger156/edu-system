@@ -4,7 +4,7 @@
       <div class="list-header">
         <!-- 标题会自动根据用户角色变化 -->
         <div>{{ pageTitle }}</div>
-        <hr>
+        <hr style="margin-top: 5px;">
       </div>
       
       <!-- 滚动内容区 -->
@@ -170,7 +170,7 @@ watch(
   height: 100%;
   padding: 20px;
   padding: 20px;
-  border: 2px solid rgb(39, 155, 194);
+  border: 2px solid rgb(137, 214, 239);
   border-radius: 8px;
   background-color: #f9f9f9;
   box-sizing: border-box;
@@ -186,12 +186,10 @@ watch(
   font-weight: bold;
   color: #333;
   padding-bottom: 10px;
-  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
   font-size: 24px;
   font-weight: bold;
   color: #333;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
+  /* border-bottom: 2px solid #007bff; 统一使用蓝色主题线 */
   flex-shrink: 0;
 }
 

@@ -4,10 +4,12 @@
       <el-aside width="200px" style="border-right: 2px blanchedalmond solid;height: 100%;">
         <div  style=" min-height: 50%; max-height: 80%;">
       <div style="font-size: 20px;padding: 10px;text-align: center;">AI聊天助手</div>
-        <div  style="display: flex;align-items: center;margin-left: 30px;margin-top: 20px;margin-bottom: 20px;">
+
+        <div  class="add">
           <el-icon :size="20" style="cursor: pointer;"  @click="addHistory" ><ChatSquare /></el-icon>
           <span style="font-size: 20px;margin-left: 5px;cursor: pointer;" @click="addHistory">创建新对话</span>
         </div>
+
         <div v-for="item in history" :class="item.id===sessionid?'history active':'history'" @click="change(item)">
             <el-icon :size="16"><ChatDotRound /></el-icon>
             <span style="margin-left: 5px;font-size: 16px;">{{ item.name.slice(0,8) }}</span>
@@ -310,5 +312,22 @@ border-radius: 12px;
   border: 1px white solid;
   background-color: #a0c5e6;
   color: #f5f6f7;
+}
+.add{
+   display: flex;
+   align-items: center;
+   margin-left: 30px;
+   margin-top: 20px;
+   margin-bottom: 20px;
+   margin-right: 30px;
+   height: 40px;
+   padding: 3px;
+   border-radius: 10px;
+   border: 1px;
+}
+.add:hover{
+    background-color: #a0c5e6;
+    border-color: white;
+    border-style: solid;
 }
 </style>
