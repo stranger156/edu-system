@@ -47,7 +47,7 @@ $http.interceptors.request.use(config=> {
  */
 $http.interceptors.response.use((res) => {
 const code:number=res.status
-if(code!=200){
+if(code!==200){
   MSGS[code]
   ElMessage.error(MSGS[code])
   return Promise.reject(res.data)

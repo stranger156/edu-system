@@ -14,6 +14,7 @@ import Examine from '@/views/examine.vue'
 import UserDetail from '@/views/UserDetail.vue'
 import ExamDetail from '@/views/ExamDetail.vue'
 import ExamineDetail from '@/views/ExamineDetail.vue'
+import AIexamine from '@/views/AIexamine.vue'
 import Correct from '@/views/Correct.vue'
 import CorrectDetail from '@/views/CorrectDetail.vue'
 
@@ -101,6 +102,11 @@ const router = createRouter({
      path: 'examine', // 完整路径：/user/profile
         name:'examine',
         component: Examine,
+        props:true
+  },{
+     path: 'AIexamine', // 完整路径：/user/profile
+        name:'AIexamine',
+        component: AIexamine,
         props:true
   },
   {

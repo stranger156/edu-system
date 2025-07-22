@@ -119,6 +119,7 @@ const notification = ref({});
 
 onMounted(async () => {
     const res = await getTest(exam_id);
+    console.log(res)
     notification.value=res.data
     title.value = res.data.exam_title;
     start.value = res.data.start_time;

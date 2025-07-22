@@ -157,6 +157,17 @@ export const getChatIDByStudentWIthID=(params:any,param:any)=>{
         data:formData
     })
 }
+// 创建会话
+export const createSessions=(chatid:any,session_name:any)=>{
+     const formData=new FormData()
+    formData.append('chat_id',chatid)
+    formData.append('session_name',session_name)
+      return $http({
+        url:'/createSessions',
+        method:"post",
+        data:formData
+    })
+}
 //根据会话id获取会话
 export const getSessionsByID=(chatid:any,sessionid:any)=>{
       return $http({
@@ -183,7 +194,30 @@ export const sendQuestion=(params:any)=>{
         responseType: 'text', // 使用 'text' 代替 'stream'
     })
 }
-
+//询问出题助手
+export const sendMessage=(params:any)=>{
+      const formData=new FormData()
+     formData.append('question',params.question)
+     formData.append('sessionID',params.sessionid)
+     formData.append('chatID',params.chatid)
+     formData.append('courseID',params.courseid)
+      return $http({
+        url:'/generate_questions',
+        method:"post",
+        data:formData,
+        responseType: 'text', // 使用 'text' 代替 'stream'
+    })
+}
+//发布练习题题目和答案
+export const submit_question=(params:any)=>{
+     const jsonData = JSON.parse(JSON.stringify(params));
+      return $http({
+        url:'/submit_question',
+        method:"post",
+        headers: { "Content-Type": "application/json" },
+        data: jsonData
+    })
+}
 //教师查看所有通知
 export const getAllNoticesByTeacher=()=>{
      return $http({

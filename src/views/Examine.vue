@@ -5,8 +5,8 @@
     <div v-for="item in testList" class="test" @click="toDetail(item)">
       <img src="../image/test.png" alt="" class="image">
       <div class="mid">
-        <h3> {{ item.练习题标题 }}</h3>
-        <div style="padding-top: 5px;">结束时间： {{ item.结束时间 }}</div>
+        <h3> {{ item.exam_title }}</h3>
+        <div style="padding-top: 5px;">结束时间： {{ item.end_time }}</div>
       </div>
     <div :class="item.status==='已完成'?'over':'notover'"> {{ item.status }}</div>
     </div>
@@ -34,7 +34,7 @@ const toDetail=(item)=>{
   if(item.status==='已完成'){
     return
   }
-  router.push({ name: 'examineDetail', params: { id:item.练习题ID} });
+  router.push({ name: 'examineDetail', params: { id:item.exam_id} });
 }
 onMounted(()=>{
     getExam().then(res=>{

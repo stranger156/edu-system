@@ -2,20 +2,24 @@
   <div class="common-layout">
     <el-container style="height: 100%;">
       <el-aside width="200px" style="border-right: 2px blanchedalmond solid;height: 100%;">
-        <div style="font-size: 20px;padding: 10px;text-align: center;">AI聊天助手</div>
-
+        <div  style=" min-height: 50%; max-height: 80%;">
+      <div style="font-size: 20px;padding: 10px;text-align: center;">AI聊天助手</div>
+        <div  style="display: flex;align-items: center;margin-left: 30px;margin-top: 20px;margin-bottom: 20px;">
+          <el-icon :size="20" style="cursor: pointer;"  @click="addHistory" ><ChatSquare /></el-icon>
+          <span style="font-size: 20px;margin-left: 5px;cursor: pointer;" @click="addHistory">创建新对话</span>
+        </div>
         <div v-for="item in history" :class="item.id===sessionid?'history active':'history'" @click="change(item)">
             <el-icon :size="16"><ChatDotRound /></el-icon>
-            <span style="margin-left: 5px;font-size: 16px;">{{ item.name.slice(18,26) }}</span>
-            <span v-show="item.name.length>26">...</span>
+            <span style="margin-left: 5px;font-size: 16px;">{{ item.name.slice(0,8) }}</span>
+            <span v-show="item.name.length>8">...</span>
         </div>
-
+        </div>  
       </el-aside>
       <el-container>
         <el-header>
             <div style="text-align: center;margin-top: 10px;padding: 10px;">
-            <span style="font-size: 16px;">{{ title.slice(18,26) }}</span>
-            <span v-show="title.length>26">...</span>
+            <span style="font-size: 16px;">{{ title.slice(0,8) }}</span>
+            <span v-show="title.length>8">...</span>
             </div>
         </el-header>
         <el-main style="height: calc(100vh - 250px);" class="hide-scrollbar" id="chat"> 
@@ -23,7 +27,7 @@
            v-for="item in messageList" 
            :class="item.role==='assistant'?'left':'right'"
           >
-          <div  :class="item.role==='assistant'?'chatLeft':'chatRight'"  v-html="compiledMarkdown(item.content)"></div>
+          <div  :class="item.role==='assistant'?'chatLeft':'chatRight'"  v-html="compiledMarkdown(item.content,item.role)"></div>
            </div>
         </el-main>
             <el-row style="margin: 0 auto;padding-left: 20px;padding-right: 20px;width:80%;float: bottom;">
@@ -51,12 +55,12 @@
 </template>
 
 <script setup>
-import { get_chatID, getChatIDByStudentWIthID, getSessions, getSessionsByID, sendQuestion } from '@/utils/api';
+import { createSessions, get_chatID, getChatIDByStudentWIthID, getSessions, getSessionsByID, sendQuestion } from '@/utils/api';
 import { onMounted, ref, watch } from 'vue'; // <--- 引入 watch
 import { marked } from 'marked';
 import { nextTick } from 'vue';
-import { renderMathJax } from '@/utils/useMathJax'; // <--- 引入修正后的函数
-
+import { renderMathJax ,useMathJax} from '@/utils/useMathJax'; // <--- 引入修正后的函数
+import { ElMessageBox,ElMessage } from 'element-plus'
 const chatId = ref();
 const state = ref();
 const history = ref([]);
@@ -64,7 +68,6 @@ const sessionid = ref();
 const title = ref('');
 const input = ref();
 const messageList = ref([]);
-
 const props = defineProps({
   courseId: {
     type: [String, Number],
@@ -75,14 +78,37 @@ const props = defineProps({
     required: true
   }
 })
-
+const addHistory=async()=>{
+    ElMessageBox.prompt('请输入您的会话名', '创建新会话', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    inputErrorMessage: 'Invalid Email',
+  })
+  .then(({value,action})=>{
+    if(action==='confirm'){
+     createSessions(chatId.value,value).then(res=>{
+     getSessions(chatId.value).then(response=>{
+  history.value = response.data;
+     })
+    change(res.data)
+     })}
+  })
+  .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '已取消',
+      })
+    })
+}
 const change=(item)=>{
-  console.log(item.id)
+  console.log(item)
   sessionid.value=item.id
+  title.value=item.name
    getSessionsByID(chatId.value,sessionid.value).then(res=>{
         messageList.value=res.data.messages
          setScrollToBottom()
     })
+  
 }
 
     	/*内容显示过多时自动滑动*/
@@ -92,6 +118,41 @@ async function setScrollToBottom() {
 	  chat.scrollTop = chat.scrollHeight
 }
 
+// 发送提问
+
+const compiledMarkdown = (dialog,role) => {
+  // 安全检查：如果输入为空或不是字符串，则直接返回空字符串
+  if (!dialog || typeof dialog !== 'string') {
+    return '';
+  }
+
+  let processedText = dialog;
+  processedText = processedText.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
+    processedText = processedText.replace(/\[ID:\d+\]/g, '')?.trim()
+if(role==='user'){
+   return marked(processedText.slice(processedText.indexOf('，')+1));
+}
+  // 最后，将完全清理干净的文本交给 marked.js 进行 HTML 转换
+  return marked(processedText);
+};
+
+const cleanAndCompile = (dialog) => {
+    if (!dialog || typeof dialog !== 'string') return '';
+    
+    // 1. 修复 LaTeX 格式
+    let fixedDialog = dialog.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
+    
+    // 2. 转换为 HTML
+    return marked(fixedDialog);
+};
+
+// 监听 messageList 的变化，当它更新时，执行滚动和数学公式排版
+watch(messageList,async() => {
+  setScrollToBottom();
+   await useMathJax(messageList)
+  // renderMathJax(); // <--- 在数据更新后调用排版
+}, { deep: true }); // 使用 deep watch 来监听数组内部的变化
+
 const sendMsg=async()=>{
     if(input.value.trim().length===0){
         input.value=''
@@ -99,12 +160,15 @@ const sendMsg=async()=>{
     }
       let question=input.value.trim()
       messageList.value.push({
-        content:question,
+        content:'，'+question,
         role:'user'
       })
       input.value=''
-       setScrollToBottom()
-   
+         messageList.value.push({
+        content:'AI思考中...',
+        role:'assistant'
+      })
+      setScrollToBottom()
   const  data = await sendQuestion({
       question: question,
       sessionid: sessionid.value,
@@ -122,11 +186,11 @@ const sendMsg=async()=>{
         });
         let newAnswer=processedMessages[processedMessages.length-1].content
         messageList.value=processedMessages.slice(0,processedMessages.length-1)
-          setScrollToBottom();
-        messageList.value.push({
+           messageList.value.push({
         content:'',
         role:'assistant'
       })
+          setScrollToBottom();
          let charIndex = 0;
       const displayInterval = setInterval(() => {
                 if (charIndex < newAnswer.length) {
@@ -136,8 +200,7 @@ const sendMsg=async()=>{
                 } else {
                     clearInterval(displayInterval);
                 }
-            }, 50); // 调整这个数字可以改变显示速度
-
+            }, 500); // 调整这个数字可以改变显示速度
     })
  }
 }
@@ -148,27 +211,37 @@ onMounted(async () => {
   if (state.value === '0') {
     let result = await getChatIDByStudentWIthID(props.courseId, props.teacherId);
     console.log(result);
-    chatId.value = result.chatID;
+    chatId.value = result.courses.chat_id;
   }
   //教师获取聊天助手
   if (state.value === '1') {
     let result = await get_chatID(props.courseId);
     chatId.value = result.chatID;
   }
+  console.log(chatId.value)
   let res = await getSessions(chatId.value);
+  console.log(res)
   history.value = res.data;
+  if(history.value.length===0){
+    return 
+  }
   sessionid.value = history.value[0].id;
   title.value = history.value[0].name;
   getSessionsByID(chatId.value, sessionid.value).then(res => {
+    console.log(res)
     const processedMessages = res.data.messages.map(msg => {
             return {
                 ...msg,
                 content: cleanAndCompile(msg.content)
             };
         });
-        messageList.value = processedMessages;
-         setScrollToBottom()
+        messageList.value=''
+        setTimeout(()=>{
+ messageList.value = processedMessages;
+  setScrollToBottom()
+        },1000)
   });
+        await  useMathJax(messageList)
 })
 
 </script>
@@ -185,7 +258,7 @@ onMounted(async () => {
     display: flex;
 }
 .chatLeft{
-    margin-left: 10px;
+    margin-left: 20px;
 	background-color: #f5f6f7!important;
     width: auto;
      padding: 12px 20px;
@@ -194,13 +267,14 @@ onMounted(async () => {
     border-radius: 12px;
     max-width: 70%;
     font-size: 16px;
+     word-break: break-word; /* 允许长单词换行 */
 }
 .right{
     display: flex;
     justify-content: flex-end;
 }
 .chatRight{
-    margin-right: 10px;
+    margin-right: 20px;
  background-color: #e0dfff;
 width: auto;
   font-size: 16px;
@@ -228,12 +302,12 @@ border-radius: 12px;
     height: 100%;
 }
 .history:hover{
-  border: 2px white solid;
+  border: 1px white solid;
   background-color: #a0c5e6;
   color: #f5f6f7;
 }
 .active{
-  border: 2px white solid;
+  border: 1px white solid;
   background-color: #a0c5e6;
   color: #f5f6f7;
 }
