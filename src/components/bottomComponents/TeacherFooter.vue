@@ -91,7 +91,6 @@
 import { ref, onMounted } from 'vue';
 import { getTeacherCourseStats, getStudentsStatsByCourse } from '@/utils/api';
 
-// --- 接口定义 (无变化) ---
 interface CourseStat {
   course_id: number;
   course_name: string;
@@ -107,14 +106,12 @@ interface StudentStat {
   completion_rate: string;
 }
 
-// --- 响应式状态 (无变化) ---
 const courses = ref<CourseStat[]>([]);
 const students = ref<StudentStat[]>([]);
 const selectedCourse = ref<CourseStat | null>(null);
 const isLoadingCourses = ref(true);
 const isLoadingStudents = ref(false);
 
-// --- 获取学生数据的函数 (无变化) ---
 const fetchStudentsForCourse = async (course: CourseStat) => {
   if (!course) return;
   isLoadingStudents.value = true;
@@ -131,19 +128,16 @@ const fetchStudentsForCourse = async (course: CourseStat) => {
   }
 };
 
-// --- **核心修改 1: 优化点击处理函数** ---
+
 const handleCourseSelect = (course: CourseStat) => {
-  // 如果点击的是当前已经选中的课程，则不执行任何操作，避免重复加载
   if (selectedCourse.value && selectedCourse.value.course_id === course.course_id) {
     return;
   }
   
-  // 更新选中的课程，并获取该课程的学生数据
   selectedCourse.value = course;
   fetchStudentsForCourse(course);
 };
 
-// --- 辅助函数 (无变化) ---
 const getScoreColor = (score: number): string => {
   if (score >= 90) return '#28a745';
   if (score >= 80) return '#007bff';
@@ -151,21 +145,17 @@ const getScoreColor = (score: number): string => {
   return '#dc3545';
 };
 
-// --- **核心修改 2: 调整 onMounted 初始化逻辑** ---
 onMounted(async () => {
   isLoadingCourses.value = true;
   
-  // **重置右侧栏状态**
-  selectedCourse.value = null; // 清空已选中的课程
-  students.value = [];        // 清空学生列表
+  selectedCourse.value = null; 
+  students.value = [];     
   
   try {
     const res = await getTeacherCourseStats();
     if (res.code === 200 && Array.isArray(res.data)) {
       courses.value = res.data.sort((a, b) => b.average_accuracy - a.average_accuracy);
       
-      // **移除自动加载第一个课程学生数据的逻辑**
-      // 我们不再在这里调用 handleCourseSelect
     }
   } catch (error) {
     console.error("Failed to fetch teacher course stats:", error);

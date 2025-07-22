@@ -28,12 +28,12 @@
             </div>
 
             <!-- 2. 右侧按钮区容器 (只对学生和老师显示) -->
-            <div v-if="user.root == '0' || user.root == '1'" class="action-section">
+            <div class="action-section">
               <el-button 
                 type="primary" 
                 plain 
                 size="small" 
-                @click.stop="handleWeaknessCheck(item.courseID, item.teacherID)"
+                @click.stop="handleWeaknessCheck(item.courseID, item.teacherID||item.Tno)"
               >
                 薄弱环节分析
               </el-button>
@@ -151,7 +151,7 @@ const handleWeaknessCheck = async (courseID: number, teacherID: number) => {
     let apiCall;
     if (user.value.root == '0') { // 学生调用个人总结接口
       apiCall = getMyWeaknessSummary(courseID, teacherID);
-    } else if (user.value.root == '1') { // 老师调用班级总结接口
+    } else if (user.value.root == '1' || user.value.root == '2') { // 老师调用班级总结接口
       apiCall = getClassSummary(courseID, teacherID);
     } else {
       loadingInstance.close();
