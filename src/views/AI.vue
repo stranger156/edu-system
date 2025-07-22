@@ -59,7 +59,7 @@ import { createSessions, get_chatID, getChatIDByStudentWIthID, getSessions, getS
 import { onMounted, ref, watch } from 'vue'; // <--- 引入 watch
 import { marked } from 'marked';
 import { nextTick } from 'vue';
-import { renderMathJax } from '@/utils/useMathJax'; // <--- 引入修正后的函数
+import { renderMathJax ,useMathJax} from '@/utils/useMathJax'; // <--- 引入修正后的函数
 import { ElMessageBox,ElMessage } from 'element-plus'
 const chatId = ref();
 const state = ref();
@@ -127,8 +127,8 @@ const compiledMarkdown = (dialog,role) => {
   }
 
   let processedText = dialog;
-
   processedText = processedText.replace(/\(([^)]*\\.+[^)]*)\)/g, '\\($1\\)');
+    processedText = processedText.replace(/\[ID:\d+\]/g, '')?.trim()
 if(role==='user'){
    return marked(processedText.slice(processedText.indexOf('，')+1));
 }
@@ -147,9 +147,10 @@ const cleanAndCompile = (dialog) => {
 };
 
 // 监听 messageList 的变化，当它更新时，执行滚动和数学公式排版
-watch(messageList, () => {
+watch(messageList,async() => {
   setScrollToBottom();
-  renderMathJax(); // <--- 在数据更新后调用排版
+   await useMathJax(messageList)
+  // renderMathJax(); // <--- 在数据更新后调用排版
 }, { deep: true }); // 使用 deep watch 来监听数组内部的变化
 
 const sendMsg=async()=>{
@@ -199,7 +200,7 @@ const sendMsg=async()=>{
                 } else {
                     clearInterval(displayInterval);
                 }
-            }, 50); // 调整这个数字可以改变显示速度
+            }, 500); // 调整这个数字可以改变显示速度
     })
  }
 }
@@ -226,7 +227,6 @@ onMounted(async () => {
   }
   sessionid.value = history.value[0].id;
   title.value = history.value[0].name;
-  console.log(chatId.value, sessionid.value)
   getSessionsByID(chatId.value, sessionid.value).then(res => {
     console.log(res)
     const processedMessages = res.data.messages.map(msg => {
@@ -235,9 +235,13 @@ onMounted(async () => {
                 content: cleanAndCompile(msg.content)
             };
         });
-        messageList.value = processedMessages;
-         setScrollToBottom()
+        messageList.value=''
+        setTimeout(()=>{
+ messageList.value = processedMessages;
+  setScrollToBottom()
+        },1000)
   });
+        await  useMathJax(messageList)
 })
 
 </script>
@@ -263,6 +267,7 @@ onMounted(async () => {
     border-radius: 12px;
     max-width: 70%;
     font-size: 16px;
+     word-break: break-word; /* 允许长单词换行 */
 }
 .right{
     display: flex;

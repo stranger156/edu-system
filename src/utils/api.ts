@@ -201,7 +201,16 @@ export const sendMessage=(params:any)=>{
         responseType: 'text', // 使用 'text' 代替 'stream'
     })
 }
-
+//发布练习题题目和答案
+export const submit_question=(params:any)=>{
+     const jsonData = JSON.parse(JSON.stringify(params));
+      return $http({
+        url:'/submit_question',
+        method:"post",
+        headers: { "Content-Type": "application/json" },
+        data: jsonData
+    })
+}
 //教师查看所有通知
 export const getAllNoticesByTeacher=()=>{
      return $http({
