@@ -13,8 +13,8 @@
             <img src="../image/class.jpg" @click="toMore(item.courseID,item.teacherID)" alt="" style=" cursor: pointer;">
             <div >
  <h1 class="name" @click="toMore(item.courseID,item.teacherID)">{{ item.courseName }}</h1>
-<div style="margin-top: 20px;"> 创建时间:{{ item. createTime}}</div>
-<div style="margin-top: 10px;">结束时间：{{ item.endTime }}</div>
+<div style="margin-top: 20px;"> 开课时间:{{ item. createTime}}</div>
+<div style="margin-top: 10px;">结课时间：{{ item.endTime }}</div>
 <div style="margin-top: 10px;">授课老师:{{ item.teacherName }}</div>
             </div> 
             <div class="learn" @click="toMore(item.courseID,item.teacherID)">进入学习</div>
@@ -141,7 +141,8 @@ const select=(courseId,teacherId,courseName,teacherName)=>{
         courseId:courseId,
         teacherId:teacherId
     }
-     ElMessageBox.alert(`<h4>教师姓名：${teacherName}</h4><h4>课程名称：${courseName}</h4>`, '课程信息确认框', {
+     ElMessageBox.alert(`<h4>课程ID：${courseId}</h4><br><h4>课程名称：${courseName}</h4><br>
+     <h4>授课教师ID：${teacherId}</h4><br><h4>授课教师：${teacherName}</h4>`, '课程信息确认框', {
     dangerouslyUseHTMLString: true,
     confirmButtonText: '确认加入课堂',
     callback: (action) => {

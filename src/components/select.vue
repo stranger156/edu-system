@@ -2,10 +2,12 @@
   <div class="list-wrapper">
     <div class="all">
       <div class="list-header">
+        <!-- 标题会自动根据用户角色变化 -->
         <div>{{ pageTitle }}</div>
         <hr>
       </div>
       
+      <!-- 滚动内容区 -->
       <div class="scrollable-content">
         <div v-if="isLoading" class="loading-state">正在加载...</div>
         <div v-else-if="array.length === 0" class="empty-state">{{ emptyMessage }}</div>
@@ -162,11 +164,16 @@ watch(
 }
 
 /* --- 1. 通用布局样式 (适用于所有页面) --- */
+/* --- 1. 通用布局样式 (适用于所有页面) --- */
 .all {
   width: 100%;
   height: 100%;
   padding: 20px;
+  padding: 20px;
   border: 2px solid rgb(39, 155, 194);
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
   border-radius: 8px;
   background-color: #f9f9f9;
   box-sizing: border-box;
@@ -175,6 +182,11 @@ watch(
 }
 
 .list-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
   font-size: 24px;
   font-weight: bold;
   color: #333;
@@ -189,11 +201,32 @@ watch(
   padding-top: 15px;
 }
 
+  padding-top: 15px;
+}
+
 .loading-state, .empty-state {
   text-align: center;
   padding-top: 50px;
   font-size: 16px;
+  padding-top: 50px;
+  font-size: 16px;
   color: #888;
+}
+
+/* --- 2. 通用卡片样式 (适用于所有列表项) --- */
+.cla {
+  margin-bottom: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.cla:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 /* --- 2. 通用卡片样式 (适用于所有列表项) --- */

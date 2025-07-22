@@ -163,6 +163,68 @@ watch(
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+/* --- 1. 通用布局样式 (适用于所有页面) --- */
+.all {
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  border: 2px solid rgb(39, 155, 194);
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.list-header {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff; /* 统一使用蓝色主题线 */
+  flex-shrink: 0;
+}
+
+.scrollable-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-top: 15px;
+}
+
+.loading-state, .empty-state {
+  text-align: center;
+  padding-top: 50px;
+  font-size: 16px;
+  color: #888;
+}
+
+/* --- 2. 通用卡片样式 (适用于所有列表项) --- */
+.cla {
+  margin-bottom: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.cla:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* 新增：课程标题的样式 */
+.course-title {
+    font-size: 16px; /* 假设这是主要的字体大小 */
+    font-weight: bold;
+}
+
+/* 新增：教师姓名的样式 */
+.teacher-name {
+    font-size: 13px; /* 设置一个更小的字体 */
+    color: #555;     /* 使用一个柔和的颜色 */
+    margin-top: 4px; /* 与课程标题之间增加一点间距 */
 }
 
 .cla:hover {

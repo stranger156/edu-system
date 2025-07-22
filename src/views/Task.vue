@@ -1,15 +1,30 @@
 <template>
   <div class="notification-list">
     <div v-if="!notices || notices.length === 0">暂无作业</div>
-    <div v-for="(item,index) in notices" :key="index" class="notification-item" @click="viewDetails(item.exam_id)">
+    <div v-for="(item,index) in notices" :key="index" class="notification-item">
       <img src="../image//homework.png" alt="作业图标" class="notification-icon" />
       <div class="notification-content">
         <div class="notification-title">{{ item.exam_title }}</div>
         <div class="notification-sender" v-if="state == '0'">状态：{{ item.status }}</div>
         <div class="notification-sender" v-if="state != '0'">提交人数：{{ item.submission_count}} / {{ item.total_students }}</div>
       </div>
+      <div class="download-container" @click.stop="viewDetails(item.exam_id)">
+        <button class="download-button">
+          <svg class="download-icon" viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          作业详情
+        </button>
+      </div>
+      <div class="download-container" @click.stop="correct(item.exam_id)">
+        <button class="download-button">
+          <svg class="download-icon" viewBox="0 0 24 24">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          批改作业
+        </button>
+      </div>
       <div class="notification-time-container">
-        <div class="notification-time">开始时间：{{ item.start_time }}</div>
         <div class="notification-time">截止时间：{{ item.end_time }}</div>
       </div>
     </div>
@@ -47,6 +62,10 @@ const viewDetails = (notice) => {
    router.push({ name: 'examDetail', params: { id:notice } });
 };
 
+const correct = (notice) => {
+   router.push({ name: 'correct', params: { id:notice } });
+};
+
 onMounted(() => {
   state.value = localStorage.getItem('root');
   if(state.value == '0'){
@@ -64,6 +83,35 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.download-container {
+  padding: 8px 15px;
+  display: flex;
+  align-items: center;
+}
+
+.download-button {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: white;
+  border: 0px solid white;
+  border-radius: 4px;
+  color: #1890ff;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.download-button:hover {
+  background-color: #f0f0f0;
+}
+.download-icon {
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  fill: currentColor;
+}
+
 .notification-time-container {
   display: flex;
   flex-direction: column;
