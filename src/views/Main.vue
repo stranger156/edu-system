@@ -69,10 +69,10 @@ import BottomComponent from '@/components/BottomComponent.vue';
 .el-main {
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 8px;
   height: 100%;
   box-sizing: border-box;
-  gap: 20px; /* **优化**: 使用 gap 来代替 margin-bottom，更现代 */
+  gap: 10px; /* **优化**: 使用 gap 来代替 margin-bottom，更现代 */
 }
 
 /* **核心修改：使用 flex 属性精确控制高度** */
@@ -86,7 +86,7 @@ import BottomComponent from '@/components/BottomComponent.vue';
   flex: 0 0 60%;
 
   /* **重要**: 为了让内部的 el-col 和 grid-content 继承高度，需要设置 height */
-  height: 60%;
+  height: 55%;
   min-height: 0; /* Flexbox 修复技巧 */
 
   /* el-row 自身也是一个 flex 容器，我们需要让它的子元素也填满高度 */

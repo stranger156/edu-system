@@ -40,7 +40,7 @@
             <div class="teacher-course-name">{{ item.course_name }}</div>
             <div class="submission-progress">
               <span class="progress-label">提交进度:</span>
-              <span class="progress-numbers">{{ item.submission_people }} / {{ item.class_people }}</span>
+              <span class="progress-numbers">{{ item.submission_count }} / {{ item.total_students}}</span>
             </div>
             <div class="teacher-footer">
               <span>起: {{ item.start_time }}</span>
@@ -239,8 +239,6 @@ watch(() => user.value.root, (newRoot) => {
   color: #888;
 }
 
-/* --- 作业卡片样式 --- */
-/* --- 作业卡片样式 --- */
 .cla {
   margin-bottom: 15px;
   background-color: #ffffff;
@@ -285,7 +283,6 @@ watch(() => user.value.root, (newRoot) => {
   color: #005f73;
 }
 
-.course-name {
 .course-name {
   font-size: 0.9em;
   color: #fff;

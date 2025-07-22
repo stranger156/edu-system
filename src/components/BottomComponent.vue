@@ -40,7 +40,14 @@ const activeFooterComponent = computed(() => {
 <style scoped>
 .dynamic-footer-wrapper {
   width: 100%;
-  padding: 10px 20px;
   box-sizing: border-box;
+  height: 100%;
+  flex-grow: 1; /* **关键**：让 main 区域占据所有剩余的垂直空间 */
+  min-height: 0; /* Flexbox hack, 配合 overflow */
+  overflow: hidden;
+  padding-bottom: 55px;
+}
+h2 {
+  margin-bottom: 20px;
 }
 </style>

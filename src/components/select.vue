@@ -201,9 +201,6 @@ watch(
   padding-top: 15px;
 }
 
-  padding-top: 15px;
-}
-
 .loading-state, .empty-state {
   text-align: center;
   padding-top: 50px;
