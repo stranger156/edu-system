@@ -58,8 +58,8 @@
     </el-container>
   </div>
     <el-dialog v-model="centerDialogVisible" title="题目效果预览" width="800" center>
-        <div style="height: 50px;">
-        <div style="float: right;margin-right: 20px;">
+        <div v-if="state==='1'" style="height: 50px;">
+        <div  style="float: right;margin-right: 20px;">
             结束时间：  
         <el-date-picker
         v-model="end_time"
@@ -339,8 +339,16 @@ if (buffer) {
 onMounted(async () => {
   //教师获取聊天助手
   state.value=localStorage.getItem('root')
+   if (state.value === '0') {
+    let result = await getChatIDByStudentWIthID(props.courseId, props.teacherId);
+    console.log(result);
+    chatId.value = result.courses.exam_id;
+  }
+  //教师获取聊天助手
+  if (state.value === '1') {
     let result = await get_chatID(props.courseId);
     chatId.value = result.examID;
+  }
   let res = await getSessions(chatId.value);
   history.value = res.data;
   if(history.value.length===0){

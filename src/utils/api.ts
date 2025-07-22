@@ -85,6 +85,13 @@ export const getTest=(params:any)=>{
     })
 }
 
+export const getStudentCourseStats=()=>{
+    return $http({
+        url:`/get_my_courses_with_stats`,
+        method:"get"
+    })
+}
+
 //课程类
 //根据课程id和教师id查找具体课程信息
 export const getLectureInfoByID=(params:any)=>{
@@ -279,6 +286,24 @@ export const get_all_exams_for_teacher_by_exam=(params:any)=>{
      formData.append('exam_id',params)
       return $http({
         url:'/get_all_exams_for_teacher_by_exam',
+        method:"post",
+        data:formData
+    })
+}
+
+export const getTeacherCourseStats = ()=>{
+      return $http({
+        url:'/get_courses_with_stats',
+        method:"get"
+    })
+}
+
+export const getStudentsStatsByCourse = (course_id:any,teacher_id:any)=>{
+    const formData=new FormData()
+     formData.append('course_id',course_id)
+     formData.append('teacher_id',teacher_id)
+      return $http({
+        url:'/get_course_students_with_stats',
         method:"post",
         data:formData
     })
