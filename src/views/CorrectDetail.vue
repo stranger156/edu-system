@@ -201,6 +201,7 @@ const returnBack = () => {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  padding: 10px;
 }
 
 .question-item {
@@ -343,6 +344,7 @@ const returnBack = () => {
   border-radius: 4px;
   font-size: 14px;
   transition: border-color 0.3s;
+  width: 200px;
 }
 
 .grading-input:focus {

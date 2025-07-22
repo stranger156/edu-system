@@ -7,8 +7,7 @@
         <span style="margin-right: 100px; color: dimgray;">开始时间：{{ start }}</span>
         <span style="margin-left: 100px; color: dimgray;">截止时间：{{ end }}</span>
       </div>
-      
-    
+
         <div v-for="type in questionTypes" :key="type" style="margin: 30px;">
             <h3 v-if="getQuestionsByType(type).length">{{ type }}</h3>
           <div v-for="(question, index) in getQuestionsByType(type)" :key="index">

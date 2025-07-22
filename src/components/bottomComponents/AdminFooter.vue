@@ -5,7 +5,7 @@
       <!-- **左侧栏：课程列表** -->
       <div class="stats-column">
         <div class="column-header">
-          <h3>全站课程总览</h3>
+          <h3>课程总览</h3>
           <!-- **新增：可点击的排序表头** -->
           <div class="sort-headers">
             <span 
@@ -65,7 +65,7 @@
         <div class="column-header">
           <!-- **核心修改 2: 标题现在需要从一个计算属性获取** -->
           <h3 v-if="selectedCourseDetails">《{{ selectedCourseDetails.course_name }}》学生学情</h3>
-          <h3 v-else>学生详情</h3>
+          <h3 v-else>学生学情</h3>
         </div>
         <div class="list-scroll-area">
           <div v-if="isLoadingStudents" class="loading-spinner"></div>

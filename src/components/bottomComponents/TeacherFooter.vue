@@ -6,7 +6,7 @@
       <!-- **左侧栏：课程列表** -->
       <div class="stats-column">
         <div class="column-header">
-          <h3>课程详情</h3>
+          <h3>课程学情</h3>
         </div>
         <div class="list-scroll-area">
           <div v-if="isLoadingCourses" class="loading-spinner"></div>
@@ -50,7 +50,7 @@
         <div class="column-header">
           <!-- 标题会根据是否选择了课程而变化 -->
           <h3 v-if="selectedCourse">《{{ selectedCourse.course_name }}》学生学情</h3>
-          <h3 v-else>学生详情</h3>
+          <h3 v-else>学生学情</h3>
         </div>
         <div class="list-scroll-area">
           <div v-if="isLoadingStudents" class="loading-spinner"></div>
