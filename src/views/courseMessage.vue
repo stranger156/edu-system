@@ -1,12 +1,12 @@
 <template>
-  <div class="notification-list" style="padding: 10px;">
-    <button class='publishButton' v-if="state=='1'" @click="showPublishDialog = true">发布通知</button>
-    <div v-if="!notices || notices.length === 0">暂无通知</div>
-  <div v-show="notices" style="margin-bottom: 10px;" >
+  <div class="notification-list" style="padding: 20px;">
       <div style="padding: 10px;font-size: 25px;">
       通知
     </div>
     <hr>
+     <button class='publishButton' v-if="state=='1'" @click="showPublishDialog = true">发布通知</button>
+    <div v-if="!notices || notices.length === 0">暂无通知</div>
+  <div v-show="notices" style="margin-bottom: 10px;" >
   </div>
     <div v-for="(item, index) in notices" :key="index" class="notification-item" @click="viewDetails(index)" style="margin-bottom: 5px;">
       <img src="../image//notice.png" alt="通知图标" class="notification-icon" />
@@ -182,6 +182,7 @@ onMounted(() => {
 }
 
 .publishButton{
+  margin-top: 10px;
   background-color:#009ad6;
   color:white;
   border-color: #009ad6;

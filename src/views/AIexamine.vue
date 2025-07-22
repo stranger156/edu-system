@@ -257,12 +257,13 @@ const sendMsg=async()=>{
      formData.append('chatID',chatId.value)
      formData.append('courseID',props.courseId)
       let token=localStorage.getItem('token')
-      const response = await fetch('http://tasedu.s7.tunnelfrp.com/generate_questions', {
+      if(state.value==='0'){
+         const response = await fetch('http://tasedu.s7.tunnelfrp.com/generate_questions_student', {
     method: 'POST',
     headers: {'Authorization': `Bearer ${token}` },
     body:formData
   });
-          // 检查响应是否正常
+    // 检查响应是否正常
         if (!response.ok || !response.body) {
           throw new Error(`请求失败: ${response.status}`);
         }
@@ -329,8 +330,86 @@ if (buffer) {
         messageList.value=processedMessages
           setScrollToBottom();
     })
+      }
+      if(state.value==='1'){
+     const response = await fetch('http://tasedu.s7.tunnelfrp.com/generate_questions', {
+    method: 'POST',
+    headers: {'Authorization': `Bearer ${token}` },
+    body:formData
+  });
+      // 检查响应是否正常
+        if (!response.ok || !response.body) {
+          throw new Error(`请求失败: ${response.status}`);
+        }
+        test.value=''
+    centerDialogVisible.value= true
+    const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+   let message = '';
+ while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          
+          // 解码并添加到缓冲区
+          buffer += decoder.decode(value, { stream: true });
+          
+          // 处理所有完整的消息块 (以 \n\n 分隔)
+          const chunks = buffer.split('\n\n');
+          buffer = chunks.pop() || ''; // 保留不完整的部分
+          
+          for (const chunk of chunks) {
+            // 跳过空消息
+            if (!chunk.trim()) continue;
+            
+            // 提取 JSON 数据部分 (移除 "data: " 前缀)
+            const dataPrefix = "data: ";
+            if (chunk.startsWith(dataPrefix)) {
+              const jsonStr = chunk.substring(dataPrefix.length);
+              
+              try {
+                const data = JSON.parse(jsonStr);
+                if (data.type === 'content' && data.data) {
+                  // 处理 Unicode 转义序列
+                  const content = decodeUnicode(data.data);
+                  message = content;
+                  test.value=content
+                }
+                if(data.type==='done'){
+                    task.value=data.questions
+                }
+              } catch (parseError) {
+                console.error('JSON 解析错误:', parseError, '原始数据:', jsonStr);
+              }
+            } else {
+              console.log('非数据块:', chunk);
+            }
+          }
+        }
+
+if (buffer) {
+          console.warn('未处理的缓冲区内容:', buffer);
+        };
+            console.log(task.value)
+  useMathJax(test)
+ // 手动解析分块响应
+
+   getSessionsByID(chatId.value,sessionid.value).then(res=>{
+     const processedMessages = res.data.messages.map(msg => {
+            return {
+                ...msg, // 复制原始消息对象的所有属性
+                content: cleanAndCompile(msg.content) // 用一个统一的函数处理内容
+            };
+        });
+        messageList.value=processedMessages
+          setScrollToBottom();
+    })
+      }
+     
+      
 
 }
+
  const decodeUnicode=(str)=> {
       return str.replace(/\\u([\dA-F]{4})/gi, 
         (_, p1) => String.fromCharCode(parseInt(p1, 16))

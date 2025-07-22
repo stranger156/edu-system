@@ -1,14 +1,12 @@
 <template>
-  <div class="notification-list" style="padding: 10px;">
+  <div class="notification-list" style="padding: 20px;">
     <div v-show="!notices">暂无通知</div>
     <div v-show="notices" style="margin-bottom: 10px;" >
-      <div style="padding: 10px;font-size: 25px;">
+      <div style="font-size: 30px;margin-bottom: 5px;">
       通知
     </div>
     <hr>
   </div>
-
-
     <div v-for="(item, index) in notices" :key="index" class="notification-item" @click="viewDetails(index)">
       <img src="../image//notice.png" alt="通知图标" class="notification-icon" />
       <div class="notification-content">

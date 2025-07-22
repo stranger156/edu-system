@@ -115,6 +115,7 @@ const returnBack = () => {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  padding: 10px;
 }
 
 /* 优化题目项间距 */

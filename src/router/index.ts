@@ -90,7 +90,7 @@ const router = createRouter({
         component: Student,
         props:true
       },{
-        path: '/detail/:courseId/:teacherId/:id/message', // 预定义参数名 :id
+        path: '/detail/:courseId/:teacherId/:id/detail', // 预定义参数名 :id
         name: 'detail',
         component: NoticeDetail
   },{

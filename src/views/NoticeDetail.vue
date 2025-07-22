@@ -56,7 +56,7 @@ const returnBack = () => {
 .notification-container {
   background-color: white;
   height:100%;
-  padding: 10px;
+  padding: 20px;
 }
 
 .notification-header-card {

@@ -1,5 +1,8 @@
 <template>
-  <el-table :data="filterTableData" style="width: 100%">
+  <div style="padding: 20px;">
+      <div style="padding: 10px;font-size: 25px;">学生详情</div>
+    <hr>
+ <el-table :data="filterTableData" style="width: 100%">
     <el-table-column label="学生ID" prop="ID" />
     <el-table-column label="姓名" prop="name" />
     <el-table-column label="手机号" prop="phoneNumber" />
@@ -9,6 +12,8 @@
       </template>
     </el-table-column>
   </el-table>
+  </div>
+ 
 </template>
 
 <script lang="ts" setup>

@@ -2,6 +2,9 @@
   <div class="notification-list">
     <button class='returnButton' @click="returnBack">返回</button>
     <div v-if="!notices || notices.length === 0">暂无学生选择此课堂</div>
+
+     <div style="padding: 10px;font-size: 25px;">作业状态</div>
+    <hr>
     <div v-for="(item,index) in notices" :key="index" class="notification-item">
       <img src="../image//homework.png" alt="作业图标" class="notification-icon" />
       <div class="notification-content">
@@ -126,6 +129,7 @@ const returnBack = () => {
 }
 
 .notification-list {
+  padding: 20px;
   width: 100%;
   position: relative;
 }
@@ -133,9 +137,10 @@ const returnBack = () => {
 .notification-item {
   display: flex;
   align-items: flex-start;
-  padding: 12px;
+  padding: 10px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
+  margin: 5px;
 }
  
 .notification-item:hover {
