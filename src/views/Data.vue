@@ -199,6 +199,7 @@ const clearPreview = () => {
 
 <style scoped>
 .materials-table {
+  max-height: 80vh;
   padding: 20px;
   background: #fff;
   border-radius: 8px;

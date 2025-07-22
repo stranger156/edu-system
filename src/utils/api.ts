@@ -13,6 +13,7 @@ return  $http(
             data:formData
         })
 }
+
 //用户注册
 export const register=(params:any)=> {
      const formData=new FormData()
