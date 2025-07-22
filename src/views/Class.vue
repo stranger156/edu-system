@@ -73,6 +73,10 @@
     <div v-if="state==='2'" class="admin-container">
         <div style="font-size: 30px;margin-bottom: 30px;margin-top: 20px;text-align: center;">授课信息表</div>
     <div class="admin-content-wrapper">
+           <div class="actions-footer" style="margin-bottom: 10px;">
+                <el-button type="primary" size="large" style="margin-left: 20px;" @click="openKnowledgeBaseDialog">创建新知识库</el-button>
+                <el-button type="success" size="large" style="float: right;margin-right: 20px;" @click="openAddCourseDialog">添加新课程</el-button>
+        </div>
             <el-table :data="tableData" stripe border style="width: 100%;" height="100%">
                 <!-- **重要**: 设置 Element Plus Table 的 height="100%" -->
                 <!-- 这会让表格自动填充其父容器的高度，并实现内部滚动 -->
@@ -92,11 +96,6 @@
                 </el-table-column>
             </el-table>
         </div>
-        <div class="actions-footer">
-                <el-button type="primary" size="large" @click="openKnowledgeBaseDialog">创建新知识库</el-button>
-                <el-button type="success" size="large" @click="openAddCourseDialog">添加新课程</el-button>
-        </div>
-
         <el-dialog v-model="knowledgeBaseDialogVisible" title="创建新知识库" width="500">
             <el-form :model="knowledgeBaseForm" label-width="100px">
                 <el-form-item label="知识库名称">
