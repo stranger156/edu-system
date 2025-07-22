@@ -7,7 +7,7 @@
     
     <div class="scrollable-content">
       <div v-if="isLoading" class="loading-state">正在加载作业...</div>
-      <div v-else-if="assignments.length === 0" class="empty-state">{{ emptyMessage }}</div>
+      <div v-else-if="assignments.length === 0 && user.root!='2'" class="empty-state">{{ emptyMessage }}</div>
       <div v-else>
         <div v-for="item in assignments" :key="item.exam_id || item['练习题ID']" class="cla">
 
@@ -47,25 +47,27 @@
               <span>止: {{ item.end_time }}</span>
             </div>
           </div>
-          
-          <!-- **模板 C: 管理员视图 (新增)** -->
-          <div v-else-if="user.root == '2'" class="admin-assignment-item">
-            <div class="admin-main-info">
-              <div class="admin-course-name">{{ item.teacher_name }}-{{ item.course_name }}</div>
-              <div class="admin-exam-title">{{ item.exam_title }}</div>
+        </div>
+        <!-- **修改: 管理员视图** -->
+          <div v-if="user.root === '2'" class="admin-dashboard">
+            <!-- **新增: 今日使用统计卡片** -->
+            <div class="stats-card-row">
+              <div class="stat-card">
+                <div class="stat-title">今日教师使用次数</div>
+                <div class="stat-value">{{ dailyUsage.teacher_usage_count }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-title">今日学生使用次数</div>
+                <div class="stat-value">{{ dailyUsage.student_usage_count }}</div>
+              </div>
             </div>
-            <div class="admin-details">
-              <div class="admin-submission">
-                <span>提交进度:</span>
-                <span class="progress-numbers">{{ item.submission_count }} / {{ item.total_students }}</span>
-              </div>
-              <div class="admin-end-time">
-                <span>截止于: {{ item.end_time }}</span>
-              </div>
+
+            <!-- **新增: 教师使用排名图表** -->
+            <div class="chart-card">
+              <div class="chart-header">教师使用次数 Top 5</div>
+              <div ref="chartRef" class="chart-container"></div>
             </div>
           </div>
-
-        </div>
       </div>
     </div>
   </div>
@@ -76,16 +78,18 @@
 import { 
   getExam as getStudentExams, 
   get_all_exams_for_teacher as getTeacherExams,
+  getDailyUsageStats,      // 新增
+  getTeacherUsageRanking   // 新增
 } from '@/utils/api';
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useUserStore } from '@/stores/token';
 import { storeToRefs } from 'pinia';
+import * as echarts from 'echarts';
 
 // 2. **修改**: 新增管理员的类型接口
 interface StudentExam { '练习题ID': number; '练习题标题': string; '课程名': string; '开始时间': string; '结束时间': string; status: '已完成' | '未完成'; }
 interface TeacherExam { exam_id: number; exam_title: string; course_name: string; start_time: string; end_time: string; class_people: number; submission_people: number; }
-interface AdminExam extends TeacherExam { Cno?: number; Tno?: number; } // 假设 Cno 和 Tno 是可选的
-type Assignment = StudentExam | TeacherExam | AdminExam;
+type Assignment = StudentExam | TeacherExam;
 
 // 3. 初始化状态 (无需改动)
 const userStore = useUserStore();
@@ -93,17 +97,22 @@ const { user } = storeToRefs(userStore);
 const assignments = ref<Assignment[]>([]);
 const isLoading = ref(true);
 
+const dailyUsage = ref({ teacher_usage_count: 0, student_usage_count: 0 });
+const teacherRanking = ref<{ teacher_name: string; usage_count: number }[]>([]);
+const chartRef = ref<HTMLElement | null>(null); // 用于引用图表容器DOM
+let myChart: echarts.ECharts | null = null; // 用于存储 ECharts 实例
+
 // 4. **修改**: 为计算属性增加管理员分支
 const pageTitle = computed(() => {
   if (user.value.root == '0') return '我的作业';
   if (user.value.root == '1') return '我发布的作业';
-  if (user.value.root == '2') return '全站作业总览';
+  if (user.value.root == '2') return '今日统计';
   return '作业区';
 });
 const emptyMessage = computed(() => {
   if (user.value.root == '0') return '恭喜，暂无待完成的作业！';
   if (user.value.root == '1') return '您还没有发布任何作业';
-  if (user.value.root == '2') return '系统中暂无作业';
+  if (user.value.root == '2') return '系统中暂无统计信息';
   return '暂无内容';
 });
 
@@ -119,6 +128,94 @@ const getStudentStatusClass = (item: StudentExam) => ({
   'status-missed': getDisplayStatus(item) === '已错过',
 });
 
+const initChart = () => {
+   if (!chartRef.value) {
+    if (myChart) {
+      myChart.dispose();
+      myChart = null;
+    }
+    return;
+  }
+  if (chartRef.value && teacherRanking.value.length > 0) {
+    // 如果 ECharts 实例已存在，先销毁
+    if (myChart) {
+      myChart.dispose();
+    }
+    myChart = echarts.init(chartRef.value);
+    
+    const top5Teachers = teacherRanking.value;
+    
+    const option = {
+      grid: {
+        top: '15%',    // 绘图区离容器顶部 15%
+        bottom: '10%', // 绘图区离容器底部 10%
+        left: '3%',    // 绘图区离容器左侧 3%
+        right: '4%',   // 绘图区离容器右侧 4%
+        containLabel: true // **关键**: 自动计算坐标轴标签的尺寸，防止其溢出
+      },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      xAxis: {
+        type: 'category',
+        data: top5Teachers.map(t => t.teacher_name)
+      },
+       yAxis: { 
+        type: 'value', 
+        name: '使用次数',
+        
+        // **1. 减少纵坐标刻度数量**
+        //    建议 ECharts 将y轴大致分成 5 个区间 (可能会是 4, 5, 或 6 个刻度)
+        splitNumber: 3,
+        
+        // **2. 消除背景条纹**
+        //    不显示 y 轴的网格分隔线
+        splitLine: {
+          show: false 
+        }
+      },
+      series: [{
+        name: '使用次数',
+        type: 'bar',
+        data: top5Teachers.map(t => t.usage_count),
+        barWidth: '40%',
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#83bff6' },
+            { offset: 0.5, color: '#188df0' },
+            { offset: 1, color: '#188df0' }
+          ])
+        }
+      }]
+    };
+    myChart.setOption(option);
+  }
+};
+watch(teacherRanking, async (newRanking, oldRanking) => {
+  // 我们只在数据从“无”到“有”时，或者数据内容发生变化时才渲染
+  if (newRanking && newRanking.length > 0) {
+    console.log("Teacher ranking data changed, initializing chart...");
+    // 等待 v-if 渲染出 DOM
+    await nextTick();
+    initChart();
+  }
+}, { deep: true }); // deep 确保即使是数组内部变化也能被侦测到
+
+// --- (可选但强烈推荐) 窗口大小自适应和组件销毁 ---
+const handleResize = () => {
+  if (myChart) {
+    myChart.resize();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+  if (myChart) {
+    myChart.dispose();
+  }
+});
 // 6. **核心修改**: 在权限策略中新增管理员的逻辑
 const roleStrategies = {
   '0': { // 学生策略 (完全保留)
@@ -144,41 +241,34 @@ const roleStrategies = {
       );
       return data;
     }
-  },
-  '2': { // 管理员策略 (新增)
-    apiCall: getTeacherExams,
-    dataProcessor: (res: any): AdminExam[] => {
-        const data = res?.data || [];
-        // **按 Cno 和 Tno 排序**
-        data.sort((a, b) => {
-            // 首先比较 Cno (如果存在)
-            if (a.Cno && b.Cno && a.Cno !== b.Cno) {
-                return a.Cno - b.Cno;
-            }
-            // 如果 Cno 相同或不存在，则比较 Tno (如果存在)
-            if (a.Tno && b.Tno && a.Tno !== b.Tno) {
-                return a.Tno - b.Tno;
-            }
-            // 如果上述都相同或不存在，则按截止日期排序
-            return new Date(a.end_time).getTime() - new Date(b.end_time).getTime();
-        });
-        return data;
-    }
   }
 };
 
-// 7. 封装的异步获取函数 (无需改动)
-const fetchDataForRole = async (role: string | number | null) => {
+const fetchDataForRole = async (role: string | null) => {
   const roleKey = String(role);
-  const strategy = roleStrategies[roleKey];
-  if (!strategy) { isLoading.value = false; assignments.value = []; return; }
   isLoading.value = true;
+  assignments.value = []; // 重置旧数据
+  
   try {
-    const response = await strategy.apiCall();
-    assignments.value = strategy.dataProcessor(response);
+    if (roleKey === '0') {
+      const res = await getStudentExams();
+      assignments.value = (res?.data || []).sort(/* ...学生排序逻辑... */);
+    } else if (roleKey === '1') {
+      const res = await getTeacherExams();
+      assignments.value = (res?.data || []).sort(/* ...老师排序逻辑... */);
+    } else if (roleKey === '2') {
+      // **管理员并行获取两个统计接口**
+      const [usageRes, rankingRes] = await Promise.all([
+        getDailyUsageStats(),
+        getTeacherUsageRanking()
+      ]);
+      if (usageRes.code === 200) dailyUsage.value = usageRes.data;
+      if (rankingRes.code === 200) teacherRanking.value = rankingRes.data;
+      teacherRanking.value = rankingRes.data.slice(0, 5);
+      console.log(teacherRanking.value)
+    }
   } catch (error) {
-    console.error(`Failed to fetch assignments for role ${roleKey}:`, error);
-    assignments.value = [];
+    console.error(`Failed to fetch data for role ${roleKey}:`, error);
   } finally {
     isLoading.value = false;
   }
@@ -420,35 +510,57 @@ watch(() => user.value.root, (newRoot) => {
   flex-direction: column;
   gap: 10px;
 }
-.admin-main-info {
-  /* 主要信息区 */
-}
-.admin-course-name {
-  font-size: 1.4em; /* 大字体 */
-  font-weight: 700;
-  color: #2c3e50;
-}
-.admin-exam-title {
-  font-size: 1.1em; /* 中等字体 */
-  color: #555;
-  margin-top: 4px;
-}
-.admin-details {
-  border-top: 1px dashed #e0e0e0;
-  padding-top: 10px;
-  margin-top: 5px;
+.admin-dashboard {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
 }
-.admin-submission {
-  font-size: 1em;
-  background-color: #f8f9fa;
-  padding: 5px 10px;
-  border-radius: 6px;
+.stats-card-row {
+  display: flex;
+  gap: 20px;
+  /* **新增**: 让这一行的高度由内容决定，不要拉伸 */
+  flex-shrink: 0; 
 }
-.admin-end-time {
-  font-size: 0.85em; /* 小字体 */
-  color: #888;
+.stat-card {
+  flex: 1;
+  background-color: #ffffff;
+  /* **修改 1**: 减小内边距来降低整体高度 */
+  padding: 5px; 
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  text-align: center;
+}
+.stat-title {
+  font-size: 14px; /* 减小标题字号 */
+  color: #6c757d;
+  margin-bottom: 5px; /* 减小间距 */
+}
+.stat-value {
+  font-size: 32px; /* 减小数字字号 */
+  font-weight: bold;
+  color: #007bff;
+}
+.chart-card {
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 20vh;
+}
+.chart-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px; /* 减小间距 */
+  flex-shrink: 0; /* 不允许标题被压缩 */
+}
+.chart-container {
+  width: 100%;
+  /* **修改 2**: 不再使用固定高度，而是让它填满父容器 */
+  height: 100%; 
+  flex-grow: 1; /* 占据图表卡片内的所有剩余垂直空间 */
 }
 </style>

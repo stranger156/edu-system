@@ -28,9 +28,9 @@
           <ul v-else class="stats-list">
             <li 
               v-for="course in sortedCourses" 
-              :key="course.course_id" 
+              :key="`${course.course_id}-${course.teacher_id}`" 
               class="stats-item clickable"
-              :class="{ 'is-active': selectedCourse && selectedCourse.course_id === course.course_id }"
+              :class="{ 'is-active': selectedId === course.id }"
               @click="handleCourseSelect(course)"
             >
               <div class="course-info">
@@ -63,12 +63,13 @@
       <!-- **右侧栏：学生列表** -->
       <div class="stats-column">
         <div class="column-header">
-          <h3 v-if="selectedCourse">《{{ selectedCourse.course_name }}》学生学情</h3>
+          <!-- **核心修改 2: 标题现在需要从一个计算属性获取** -->
+          <h3 v-if="selectedCourseDetails">《{{ selectedCourseDetails.course_name }}》学生学情</h3>
           <h3 v-else>学生详情</h3>
         </div>
         <div class="list-scroll-area">
           <div v-if="isLoadingStudents" class="loading-spinner"></div>
-          <div v-else-if="!selectedCourse" class="placeholder">请从左侧选择一门课程查看学生详情</div>
+          <div v-else-if="!selectedId" class="placeholder">请从左侧选择一门课程查看学生详情</div>
           <div v-else-if="students.length === 0" class="placeholder">该课程暂无学生数据</div>
           <ul v-else class="stats-list">
             <li v-for="student in students" :key="student.student_id" class="stats-item">
@@ -102,6 +103,7 @@ import { getTeacherCourseStats, getStudentsStatsByCourse } from '@/utils/api';
 
 // --- 类型定义 ---
 interface CourseStat {
+  id: string;
   course_id: number;
   course_name: string;
   average_accuracy: number;
@@ -116,16 +118,20 @@ interface StudentStat {
   average_accuracy: number;
   completion_rate: string;
 }
-
+const selectedId = ref<string | null>(null);
 // --- 响应式状态 ---
 const courses = ref<CourseStat[]>([]);
 const students = ref<StudentStat[]>([]);
-const selectedCourse = ref<CourseStat | null>(null);
 const isLoadingCourses = ref(true);
 const isLoadingStudents = ref(false);
 const sortKey = ref<'average_accuracy' | 'completion_rate'>('average_accuracy');
 const sortOrder = ref<'asc' | 'desc'>('desc');
 
+const selectedCourseDetails = computed(() => {
+  if (!selectedId.value) return null;
+  // 从原始的 courses 数组中查找
+  return courses.value.find(c => c.id === selectedId.value) || null;
+});
 // --- 动态排序的计算属性 ---
 const sortedCourses = computed(() => {
   return [...courses.value].sort((a, b) => {
@@ -163,8 +169,18 @@ const fetchStudentsForCourse = async (course: CourseStat) => {
 };
 
 const handleCourseSelect = (course: CourseStat) => {
-  if (selectedCourse.value?.course_id === course.course_id) return;
-  selectedCourse.value = course;
+  // 判断点击的是否是同一个
+  if (selectedId.value === course.id) {
+    // 如果是，可以选择取消选中
+    // selectedId.value = null;
+    // students.value = [];
+    return;
+  }
+  
+  // 更新选中的 ID
+  selectedId.value = course.id;
+  
+  // 传入完整的 course 对象去获取学生列表
   fetchStudentsForCourse(course);
 };
 
@@ -178,12 +194,18 @@ const getScoreColor = (score: number): string => {
 // --- 生命周期钩子 ---
 onMounted(async () => {
   isLoadingCourses.value = true;
-  selectedCourse.value = null;
+  selectedId.value = null;
   students.value = [];
   try {
     const res = await getTeacherCourseStats();
     if (res.code === 200 && Array.isArray(res.data)) {
-      courses.value = res.data;
+      courses.value = res.data.map(course => ({
+        ...course,
+        id: `c${course.course_id}-t${course.teacher_id}`
+      }));
+      courses.value.forEach(element => {
+        console.log("数据"+element.course_id+"-"+element.teacher_id)
+      });
       // 初始加载时不自动选择第一个，等待用户交互
     }
   } catch (error) {

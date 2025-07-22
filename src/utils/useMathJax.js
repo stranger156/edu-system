@@ -83,3 +83,24 @@ export async function renderMathJax() {
         console.error('MathJax rendering failed:', e);
     }
 }
+// --- **2. 新增：用于手动渲染指定元素（如弹窗）的函数** ---
+/**
+ * 手动触发对指定 DOM 元素或整个文档的 MathJax 渲染。
+ * @param {HTMLElement} [element] - 可选。要渲染的特定 DOM 元素。如果未提供，则渲染整个文档。
+ */
+export async function renderMathInElement(element) {
+    try {
+        // 确保 MathJax 已加载并准备就绪
+        const MathJax = await initializeMathJax();
+        
+        // 等待下一个 DOM 更新周期，确保弹窗等元素已插入到页面
+        await nextTick();
+        
+        // **核心**: 调用 typesetPromise 并传入目标元素
+        // 如果 element 为空，MathJax 默认渲染整个 document.body
+        await MathJax.typesetPromise(element ? [element] : undefined);
+        console.log('Manual MathJax typesetting complete for:', element || 'document');
+    } catch (e) {
+        console.error('Manual MathJax rendering failed:', e);
+    }
+}

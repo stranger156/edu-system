@@ -456,3 +456,80 @@ function cloneDeep(params: any) {
     throw new Error("Function not implemented.")
 }
 
+// 新增：获取学生个人总结 (GET请求)
+export const getMyWeaknessSummary = (course_id:number, teacher_id:number) => {
+  return $http({
+    url: `/get_my_weakness_summary?course_id=${course_id}&teacher_id=${teacher_id}`,
+    method: 'get'
+  });
+};
+
+// 新增：获取班级易错点总结 (GET请求)
+export const getClassSummary = (course_id:number, teacher_id:number) => {
+  return $http({
+    url: `/get_class_summary?course_id=${course_id}&teacher_id=${teacher_id}`,
+    method: 'get'
+  });
+};
+
+export const getDailyUsageStats = () => {
+  return $http({
+    url: `/get_daily_usage_stats`,
+    method: 'get'
+  });
+};
+
+export const getTeacherUsageRanking = () => {
+  return $http({
+    url: `/get_teacher_usage_ranking`,
+    method: 'get'
+  });
+};
+
+export const upload_file = (formData) => {
+  return $http({
+    url: `/upload_file`,
+    method: 'post',
+    data: formData,
+  });
+};
+interface CreateKnowledgeBasePayload {
+  kb_name: string;
+  filenames: string[]; // 明确 filenames 是一个字符串数组
+}
+
+export const create_knowledge_base = (payload: CreateKnowledgeBasePayload) => {
+  // 对于 POST 请求，第二个参数就是我们要发送的 JSON 数据
+  // Axios 会自动将其序列化为 JSON 字符串，并设置正确的 Content-Type header
+  return $http({
+    url: '/create_knowledge_base', // 后端提供的 API 端点
+    method: 'post',               // 使用 POST 方法，因为我们在创建新资源
+    headers: { "Content-Type": "application/json" },
+    data: payload                 // **核心**: 将包含 kb_name 和 filenames 的对象作为 data 发送
+  });
+};
+
+export const getDatasets = () => {
+  return $http({
+    url: '/getDatasets',
+    method: 'get'
+  });
+};
+
+// 创建新课程 (POST 请求，发送 form-data)
+export const createCourse = (data) => {
+  // axios 默认发送 json，我们需要创建一个 FormData 对象来发送 form-data
+  const formData = new FormData();
+  formData.append('knowledgeBaseID', data.knowledgeBaseID);
+  formData.append('courseName', data.courseName);
+
+  return $http({
+    url: '/createCourse',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data' // 明确指定内容类型
+    }
+  });
+};
+
